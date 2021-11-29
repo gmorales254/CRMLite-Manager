@@ -121,3 +121,13 @@
 		background-color: #FAFAFA;
 		color: black;
 	}
+
+	.closebadge:hover{
+		cursor: pointer;
+		color: red;
+	}
+
+	.editbadge:hover{
+		cursor: pointer;
+		color: lightgreen;
+	}

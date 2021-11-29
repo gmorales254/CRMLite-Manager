@@ -172,6 +172,9 @@
 		max-width: 80%;
 		max-heigth: 240px;
 		margin: 10px;
+		resize: auto;
+		color: black;
+		height: 200px;
 	}
 	
 	.script__container {
@@ -249,7 +252,8 @@
 					<div class="columna">
 						<div class="inputs customers_search_section">
 							<div class="input-group" style="width: 300px;">
-								<input id="txtSearch" type="text" class="form-control" data-i18n="" placeholder="Search" aria-describedby="basic-addon1" data-toggle="tooltip" title="" data-original-title="Search">
+								<input id="txtSearch" type="text" class="form-control" data-i18n="" placeholder="Search" aria-describedby="basic-addon1"
+									data-toggle="tooltip" title="" data-original-title="Search">
 								<span class="input-group-addon btnsearch" id="btnSearch">
                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 								</span>
@@ -265,7 +269,8 @@
 									<div class="panel-heading" style="height: 60px;">
 										<span>Customer information</span>
 										<div style="float: right;">
-											<button id="btnApplyFilter" disabled="" type="button" class=" btn" style="line-height: 26px; background-color: #7367f0 !important; color: white;" aria-label=""><i class="fa fa-filter"></i></button>
+											<button id="btnApplyFilter" disabled="" type="button" class=" btn" style="line-height: 26px; background-color: #7367f0 !important; color: white;"
+												aria-label=""><i class="fa fa-filter"></i></button>
 											<button id="btnRefreshTableCustomers" type="button" class="btn-success btn" style="line-height: 26px;" aria-label=""><i class="fa fa-refresh"></i></button>
 											<button id="btnDeleteCustomers" type="button" class="btn btn-danger" style="line-height: 26px;">
                                 <span style="background: none repeat scroll 0% 0% transparent;border: 0px none;color: #FFF">
@@ -338,31 +343,22 @@
 					<div id="features_div2" style="margin-top: 10px;width: 80%;">
 						<h3 style="display: flex;justify-content: space-around;">Dynamic Fields</h3>
 
-						<div class="files-container fila">
 
-							<div class="closebadge" id="closebadge" style="display:none"></div>
-							<div id="filediv" class="fila">
-								<!-- RENDERIZA EN GeneralSettings.js-->
-							</div>
-
-							<div id="bdgNewfile" class="badge-file badge-file-new">
-
-								<i class="fa fa-plus-circle" style="margin-right: 5px;"></i>
-								<spam data-i18n="CRMLite.newFile">New field
-								</spam>
-							</div>
-
-						</div>
-						<div class="container_sort" style="display:none;">  <!-- ACTIVAR CUANDO SE FINALICE LA LOGICA.-->
+						<div class="container_sort">
+							<!-- ACTIVAR CUANDO SE FINALICE LA LOGICA.-->
 							<div class="drag-sort-enable">
-								<div id="bdgNewfile" class="badge-file badge-file-new"> 
+
+								<div id="bdgNewfile" class="badge-file badge-file-new">
 
 									<i class="fa fa-plus-circle" style="margin-right: 5px;"></i>
 									<spam data-i18n="CRMLite.newFile">New field
 									</spam>
 								</div>
+								<div id="bdgSavePositions" class="badge-file badge-file-new" style="display:none;">
+									<i class="fa fa-save" style="margin-right: 5px;"></i>
+									<spam>Update positions</spam>
+								</div>
 								<ul class="drag-sort-enable ul_drag_sort_fields" id="drag-sort-fields">
-									<li class="li_drag_sort_fields">Application</li>
 								</ul>
 							</div>
 						</div>
@@ -380,13 +376,13 @@
 				<hr>
 				<div class="script__container">
 					<div class="script__queues">
-						<select id="cmbScriptQueues" class="combobox-ui" style="color:black;">
+						<select id="cmbScriptQueues" class="combobox-ui form-control" style="color:black;">
 						<option disabled="" selected="">prueba</option>
 					</select>
 					</div>
 
 					<div style="width: 80%; display: flex; justify-content: center;">
-						<textarea id="txtScript" class="script__textarea" style="resize: auto; color: black; margin: 10px; width: 100%; height: 114px;"></textarea>
+						<textarea id="txtScript" class="script__textarea form-control"></textarea>
 					</div>
 					<button type="button" id="btnSaveScript" class="btn btn-success">Save Script</button>
 				</div>
@@ -394,9 +390,13 @@
 			</div>
 
 
-			<div id="menu3" class="tabContent tab-pane fade sections active in hide">
-				<h3>Menu 3</h3>
-				<p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+			<div id="botDesigner" class="tabContent tab-pane fade sections active in hide">
+				<h3>Bot designer</h3>
+				<p>Design your own bots with a simple survey form</p>
+				<hr>
+				<div class="botdesigner__container">
+
+				</div>
 			</div>
 
 		</div>

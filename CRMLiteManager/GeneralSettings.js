@@ -101,47 +101,83 @@ async function loadFeatures() {
 
 
 // ------------------------------------
-async function updateFields(){
+async function updateFieldsSortEvent() {
 
-function enableDragSort(listClass) {
-  const sortableLists = document.getElementsByClassName(listClass);
-  Array.prototype.map.call(sortableLists, (list) => {enableDragList(list)});
-}
-
-function enableDragList(list) {
-  Array.prototype.map.call(list.children, (item) => {enableDragItem(item)});
-}
-
-function enableDragItem(item) {
-  item.setAttribute('draggable', true)
-  item.ondrag = handleDrag;
-  item.ondragend = handleDrop;
-}
-
-function handleDrag(item) {
-  const selectedItem = item.target,
-        list = selectedItem.parentNode,
-        x = event.clientX,
-        y = event.clientY;
-  
-  selectedItem.classList.add('drag-sort-active');
-  let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
-  
-  if (list === swapItem.parentNode) {
-    swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling;
-    list.insertBefore(selectedItem, swapItem);
+  function enableDragSort(listClass) {
+    const sortableLists = document.getElementsByClassName(listClass);
+    Array.prototype.map.call(sortableLists, (list) => { enableDragList(list) });
   }
-}
 
-function handleDrop(item) {
-  item.target.classList.remove('drag-sort-active');
-}
+  function enableDragList(list) {
+    Array.prototype.map.call(list.children, (item) => { enableDragItem(item) });
+  }
 
-(()=> {enableDragSort('drag-sort-enable')})();
+  function enableDragItem(item) {
+    item.setAttribute('draggable', true)
+    item.ondrag = handleDrag;
+    item.ondragend = handleDrop;
+  }
+
+  function handleDrag(item) {
+    const selectedItem = item.target,
+      list = selectedItem.parentNode,
+      x = event.clientX,
+      y = event.clientY;
+
+    selectedItem.classList.add('drag-sort-active');
+    let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
+
+    if (list === swapItem.parentNode) {
+      swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling;
+      list.insertBefore(selectedItem, swapItem);
+      document.getElementById('bdgSavePositions').style.display = "flex";
+    }
+  }
+
+  function handleDrop(item) {
+    item.target.classList.remove('drag-sort-active');
+  }
+
+  (() => { enableDragSort('drag-sort-enable') })();
 
 }
 
 //----------------- drag and drop --------------
+
+//----------------- Save position ------------->
+
+document.getElementById("bdgSavePositions").addEventListener('click', async () => {
+
+  
+  parent.loaderSetVisible(true);
+  document.getElementById('bdgSavePositions').style.display = "none";
+  let fields = document.getElementById('drag-sort-fields').children;
+  if (!fields.length) return { error: "no elements to sort" };
+
+  let i = 0;
+
+  let errors = false;
+  for (let ele of fields) {
+    let respExec = await UC_exec_async(`UPDATE CRMLite_structure SET position = ${i} WHERE fieldId = "${ele.dataset.fieldid}"`, 'Repo');
+    if (respExec === "ERROR") errors = true;
+    i++
+  }
+
+
+  
+  parent.loaderSetVisible(false);
+  if (!errors) {
+    await loadFields(); //cargo campos nuevamente ya actualizados
+    await loadInformation(); //cargo informacion del Customers.js tabla
+    await loadTable(); // Cargo tabla del Customers.js 
+    notification('Congratulations', 'sort the fields has been successfully', 'fa fa-success', 'success');
+  }
+  else{notification('Error in the database', 'Please try again', 'fa fa-warning', 'warning');
+  }
+
+});
+
+//<---------------- Save position -------------
 
 document.getElementById("bdgNewfile").addEventListener("click", async () => { //AÑADIR UN NUEVO FIELD
 
@@ -207,9 +243,9 @@ document.getElementById("bdgNewfile").addEventListener("click", async () => { //
         notification('Error', 'This Field ID is current in the database', 'fa fa-warning', 'error');
         return;
       } else {
-
+        let lastPosition = JSON.parse(await UC_get_async(`SELECT position FROM ccrepo.CRMLite_structure ORDER BY position DESC LIMIT 1`, ''))[0].position;
         let qq = await UC_exec_async(`INSERT INTO ccrepo.CRMLite_structure VALUES ("${fieldId}", "${fieldName}", "${fieldType}", 
-        "${fieldValue}", ${fieldMaxLength}, ${fieldRequired}, ${fieldActive}, 0)`, "");
+        "${fieldValue}", ${fieldMaxLength}, ${fieldRequired}, ${fieldActive}, ${lastPosition + 1})`, "");
 
         if (qq == "OK") {
           notification('Your field has been save successfully', "", 'fa fa-success', 'success');
@@ -251,43 +287,39 @@ async function loadFields(fields) {
     fieldsParse.map((item) => { fieldArray.push(item); });//actualizo mi array con elementos nuevos 
   }
 
-  
+
   fieldArray.map((item, position) => {
     let reparse = item.split(">");
-    fieldStr += `<div class="badge-file badge-file-primary">
-								<spam>
-                  <i data-posicion="${position}" class="closebadge fa fa-window-close"></i>
-                  <spam data-fieldsdetail="${position}">${reparse[1]}</a>
-								</spam>
-							</div>`;
-    
-  fieldStrDragSort += `<li class="li_drag_sort_fields" data-fieldid="${reparse[0]}">ID: ${reparse[0]} - ${reparse[1]}</li>`
-    
+
+    fieldStrDragSort += `<li class="li_drag_sort_fields" data-fieldid="${reparse[0]}">
+    <i data-fieldid="${reparse[0]}" class="closebadge fa fa-window-close"></i>
+    <i data-fieldid="${reparse[0]}" class="editbadge fa fa-pencil-square-o"></i>  
+    ID: ${reparse[0]} - Detail: ${reparse[1]}
+    </li>`
+
   });
 
-  document.getElementById("filediv").innerHTML = fieldStr;
   document.getElementById("drag-sort-fields").innerHTML = fieldStrDragSort;
 
   await updateBadges(); //actualizo los elementos
-  await updateFields(); //Actualizo los elementos.
+  await updateFieldsSortEvent(); //Actualizo los elementos para que tengan sort.
 }
 
 //eliminar un archivo de tipo link y actualizacion de elementos pills
 async function updateBadges() {
   let closebadge = document.querySelectorAll(".closebadge");
-  let fieldDetails = document.querySelectorAll('spam[data-fieldsdetail]');
+  let fieldDetails = document.querySelectorAll(".editbadge");
 
   closebadge.forEach(async (val, indx) => {
     closebadge[indx].addEventListener("click", async (e) => {
-      let fieldIdTEMP = fieldArray[e.path[0].dataset.posicion].split(">")[0]; //tomo item de array en la posicion X, hago split por ">" y tomo el primer item que es el fieldId 
-      await deleteFieldInformation(fieldIdTEMP);
+      await deleteFieldInformation(e.currentTarget.dataset.fieldid);
     });
 
   });
 
   fieldDetails.forEach(async (val, indx) => {
     fieldDetails[indx].addEventListener("click", async (e) => {
-      await changeFieldInformation(Number(e.path[0].dataset.fieldsdetail)) //Convierto y envío index que contiene el dataset ;
+      await changeFieldInformation(e.currentTarget.dataset.fieldid);
     });
   });
 
@@ -295,9 +327,9 @@ async function updateBadges() {
 }
 
 async function deleteFieldInformation(fieldIdTEMP = "") {
-
+  let position = JSON.parse(await UC_get_async(`SELECT position FROM CRMLite_structure WHERE fieldId = "${fieldIdTEMP}" LIMIT 1`))[0].position;
   Swal.fire({
-    title: `Do you want to delete ${fieldIdTEMP}?`,
+    title: `Do you want to delete "${fieldIdTEMP}"?`,
     showDenyButton: true,
     showCancelButton: true,
     confirmButtonText: 'Do it',
@@ -308,19 +340,18 @@ async function deleteFieldInformation(fieldIdTEMP = "") {
       let respExc = await UC_exec_async(`DELETE FROM ccrepo.CRMLite_structure WHERE fieldId = "${fieldIdTEMP}"`, ""); // elimino campo 
 
       if (respExc === "OK") {
-
-        loadFields(); // actualizo array y elementos
-
+        await UC_exec_async(`UPDATE CRMLite_structure crm SET crm.position = (crm.position - 1) WHERE crm.position > ${position}`, 'Repo');
+        await loadFields(); // actualizo array y elementos
         await loadInformation();
         await loadTable();
-        
-      Swal.fire('Deleted!', 'Field and data has been deleted', 'success');
+
+        Swal.fire('Deleted!', 'Field and data has been deleted', 'success');
       } else {
 
-      Swal.fire(`${fieldIdTEMP} field is still on database`, 'this is a required field for CRMLite', 'error');
+        Swal.fire(`${fieldIdTEMP} field is still on database`, 'this is a required field for CRMLite', 'error');
       }
-      
-        parent.loaderSetVisible(false);
+
+      parent.loaderSetVisible(false);
 
     } else if (result.isDenied) {
       Swal.fire('Field not deleted', '', 'info');
@@ -329,26 +360,22 @@ async function deleteFieldInformation(fieldIdTEMP = "") {
 
 }
 
-async function changeFieldInformation(fieldPosition) {
-  //Tomar los datos de la tabla CRMLite_structure y cargarlos en el front.
-  //Hacer un trigger que cuando detecte que se borra un campo, se elimine todo del CRMLite_customersV2
+async function changeFieldInformation(fieldId) {
 
+  let resp = JSON.parse(await UC_get_async(`SELECT * FROM CRMLite_structure WHERE fieldId = "${fieldId}"`))[0];
 
-  let fieldToModify = fieldArray[fieldPosition];
-  let fieldsParse = fieldToModify.split(">");
-  //${fieldId}>${fieldName}>${fieldValue}>${fieldType}>${fieldMaxLength}>${fieldRequired}>${fieldActive}
   let fieldsAvailableHTMLtemp = "";
 
   fieldsAvailable.map((item) => {
-    fieldsAvailableHTMLtemp += `<option value=${item} ${fieldsParse[3] === item ? "selected" : ""}>${item}</option>`
-  })
+    fieldsAvailableHTMLtemp += `<option value=${item} ${resp.fieldType === item ? "selected" : ""}>${item}</option>`
+  });
 
   const { value: formValues } = await Swal.fire({
     title: `Modify a field`,
     html:
     `
-        <input type="text" id="inpFieldId" class="swal2-input" style="width:220px;" placeholder="* Field ID (unique name)" value="${fieldsParse[0]}"/>
-        <input type="text" id="inpFieldName" class="swal2-input" style="width:220px;" placeholder="* Name or description" value="${fieldsParse[1]}"/>
+        <input type="text" id="inpFieldId" class="swal2-input" style="width:220px;" placeholder="* Field ID (unique name)" disabled value="${resp.fieldId}"/>
+        <input type="text" id="inpFieldName" class="swal2-input" style="width:220px;" placeholder="* Name or description" value="${resp.name}"/>
         
       <select id="cmbFieldType" class="swal2-input" style="width:220px;">
             <option disabled value>Select a type</option>
@@ -356,17 +383,17 @@ async function changeFieldInformation(fieldPosition) {
       </select>
       
       </select>
-      <input  type="number" id="inpMaxLenght" placeholder="Max lenght" class="swal2-input" style="width:220px;" value="${fieldsParse[4]}">
+      <input  type="number" id="inpMaxLenght" placeholder="Max lenght" class="swal2-input" style="width:220px;" value="${resp.maxLength}">
       
-        <input type="text" id="inpFieldValue" class="swal2-input" style="width:220px;" placeholder="Default value (separate by comma if type is 'select')" value="${fieldsParse[2]}"/>
+        <input type="text" id="inpFieldValue" class="swal2-input" style="width:220px;" placeholder="Default value (separate by comma if type is 'select')" value="${resp.fieldValue}"/>
       
-<input type="checkbox" id="chkFieldRequired" ${fieldsParse[5] == "true" ? "checked" : ""}/>
+<input type="checkbox" id="chkFieldRequired" ${resp.required == "true"  || resp.required == 1 ? "checked" : ""}/>
       
      <label for="chkFieldRequired" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
         <span class="swal2-label">Required</span>
     </label>
 
-    <input type="checkbox" id="chkFieldActive" ${fieldsParse[6] == "true" ? "checked" : ""}/>
+    <input type="checkbox" id="chkFieldActive" ${resp.active == "true" || resp.active == 1  ? "checked" : ""}/>
       
      <label for="chkFieldActive" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
         <span class="swal2-label">Active</span>
@@ -396,8 +423,8 @@ async function changeFieldInformation(fieldPosition) {
         return;
       }
       // si pasó todo OK:
-      const {fieldId, fieldName, fieldValue, fieldType, fieldMaxLength, fieldRequired, fieldActive} = objField;
-      fieldArray[fieldPosition] = `${fieldId}>${fieldName}>${fieldValue}>${fieldType}>${fieldMaxLength}>${fieldRequired}>${fieldActive}`; //modificado
+
+
       await updateFieldInformation(objField);// se modifica en la base
     }
   });
@@ -407,6 +434,7 @@ async function changeFieldInformation(fieldPosition) {
 
 
 async function updateFieldInformation(objField) {
+  
   let resp = JSON.parse(await UC_get_async(`SELECT count(*) as 'registrosEncontrados' FROM ccrepo.CRMLite_structure WHERE fieldId = "${objField.fieldId}"`, ''))[0];
   if (resp.registrosEncontrados == 0) return;
   // Si se encuentra registros:

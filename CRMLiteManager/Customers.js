@@ -27,7 +27,7 @@ export async function loadInformation(filter = false) {
 	let headers = [];
 	let content = [];
 
-	headers = JSON.parse(await UC_get_async("SELECT fieldId, fieldType FROM CRMLite_structure", "Repo"));
+	headers = JSON.parse(await UC_get_async("SELECT fieldId, fieldType FROM CRMLite_structure ORDER BY position", "Repo"));
 	if (!headers) return { error: "nothing to load" }
 
 	let jsonQuery = "";
@@ -44,19 +44,6 @@ export async function loadInformation(filter = false) {
 
 	arrHeaders = headers;
 	arrItems = content;
-	//cambio de indicie para el orden de la tabla (nombre, telefono y correo) ---->
-
-	let indxName = arrHeaders.findIndex((item) => item.fieldId === "name");
-	arrHeaders = array_move(arrHeaders, indxName, 0);
-
-	let indxPhone = arrHeaders.findIndex((item) => item.fieldId === "phone");
-	arrHeaders = array_move(arrHeaders, indxPhone, 1);
-
-	let indxEmail = arrHeaders.findIndex((item) => item.fieldId === "email");
-	arrHeaders = array_move(arrHeaders, indxEmail, 2);
-
-	//<--- cambio de indicie para el orden de la tabla (nombre, telefono y correo
-
 	// FILTROS ----->
 
 	if (filter) {
@@ -71,7 +58,6 @@ export async function loadInformation(filter = false) {
 		let agent = filters.dbFields.agent;
 
 		if (status && status != "both") arrItems = arrItems.filter(element => element['active'] == status);
-		//	if (agent && agent != "all") arrItems = arrItems.filter(element => element.agent === agent);
 
 	}
 
@@ -106,7 +92,6 @@ export async function loadTable(page = 1) {
 		`
 	// <-- Headers --
 	// --- Pagination -->
-	//let pageSize = document.getElementById("customers_pagesize");
 
 	let paginationResp = paginate(arrItems.length, page); //( cantidad de registros, pagina actual, cantidad maximo de paginas a mostrar, cantidad maximo de paginas en ul )
 
@@ -177,10 +162,6 @@ export async function loadTable(page = 1) {
 
 document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
 	const dropZoneElement = inputElement.closest(".drop-zone");
-
-	/* dropZoneElement.addEventListener("click", (e) => {
-	   inputElement.click();
-	 }); */
 
 	inputElement.addEventListener("change", (e) => {
 		if (inputElement.files.length) {
@@ -254,11 +235,11 @@ let btn_upload = document.getElementById('btnUploadBase').addEventListener('clic
 	});
 
 	const {value: bulkopt } = await Swal.fire({
-		title: 'Select color',
+		title: 'Select an option',
 		input: 'radio',
 		inputOptions: {
 			"customer": "Bulk a customers",
-			"dialer": "Bulk a dialer base"
+			"dialer": "Bulk a new dialer base"
 		},
 		inputValidator: (value) => {
 			if (!value) {
@@ -305,6 +286,7 @@ let btn_upload = document.getElementById('btnUploadBase').addEventListener('clic
 });
 
 async function uploadNewDialerBase(dialer, data, errors) {
+	parent.loaderSetVisible(true);
 
 	data = await validateNewCustomers(data, errors);
 
@@ -329,6 +311,8 @@ async function uploadNewDialerBase(dialer, data, errors) {
 	dataFormated = btoa(dataFormated); //pasamos la base a B64
 	
 	ajaxUploadBase(dataFormated, dialer, 'CRMLITEBASE', data.length); //subo base;
+	parent.loaderSetVisible(false);
+	notification('Success', "The process has been finalize", "fa fa-success", 'success');
 
 }
 
@@ -351,10 +335,10 @@ async function validateNewCustomers(data, errors) {
 
 		data.map((item, indx) => {
 
-			if (!item['phone'] || !item['name']) {
+			if (!item['phone']) {
 				errorFound = true;
 				data[indx].errors = true;
-				arrErrors.push(["Important data in row is missing", `${indx + 1 /*+1 para tomar en cuenta el header */}`, 'Empty phone or/and name field/s']);
+				arrErrors.push(["Important data in row is missing", `${indx + 1 /*+1 para tomar en cuenta el header */}`, 'Empty phone']);
 			}
 
 		});
@@ -364,7 +348,7 @@ async function validateNewCustomers(data, errors) {
 		});
 
 
-		if (!errorFound) {
+		if (errorFound) {
 
 			let csvContent = "data:text/csv;charset=utf-8," + arrErrors.map((e, i, a) => a[i].join(",")).join("\n");
 
@@ -738,7 +722,9 @@ document.getElementById('btnApplyFilter').addEventListener('click', async () => 
 /* INIT FUNCTIONS */
 
 $(async () => {
+	parent.loaderSetVisible(true);
 	let initialInfo = await loadInformation();
 	if (initialInfo.error) return;
 	await loadTable();
+	parent.loaderSetVisible(false);
 })

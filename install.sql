@@ -1,3 +1,17 @@
+-- CREATE TABLES SCRIPT
+
+DELIMITER //
+CREATE PROCEDURE `CRMLiteManager_changePosition`(
+	IN `beforePosition` INT
+)
+BEGIN
+ 
+ 
+ UPDATE ccrepo.CRMLite_structure crm SET crm.position = (crm.position - 1) WHERE crm.position > @beforePosition;
+ 
+   
+END//
+DELIMITER ;
 
 -- Dumping structure for procedure ccrepo.CRMLiteManager_deleteAllCustomers
 DELIMITER //
@@ -9,9 +23,34 @@ DELETE FROM ccrepo.CRMLite_customersV2;
 END//
 DELIMITER ;
 
+-- Dumping structure for table ccrepo.CRMLite_bots
+CREATE TABLE IF NOT EXISTS `CRMLite_bots` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `questions` json NOT NULL,
+  `requiredInfo` tinyint(1) DEFAULT '0',
+  `language` set('es','en') COLLATE utf8_unicode_ci DEFAULT 'en',
+  `campaign` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `channel` set('email','sms','messenger','facebook','webchat') COLLATE utf8_unicode_ci DEFAULT 'webchat',
+  `afterTimeout` varchar(100) COLLATE utf8_unicode_ci DEFAULT 'goto:finish',
+  `msgBeforeTimeOutAction` varchar(250) COLLATE utf8_unicode_ci DEFAULT 'We will transfer you to an agent',
+  `welcome` varchar(250) COLLATE utf8_unicode_ci DEFAULT 'Welcome',
+  `msgBeforeFinishInteraction` varchar(250) COLLATE utf8_unicode_ci DEFAULT 'Have a great day!',
+  `sendInteractionHistory` tinyint(1) DEFAULT '0',
+  `reportConfig` mediumtext COLLATE utf8_unicode_ci,
+  `emailConfig` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `lastupdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Internal base for bots designer';
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table ccrepo.CRMLite_customersV2
 CREATE TABLE IF NOT EXISTS `CRMLite_customersV2` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'unique identify',
+  `name` varchar(100) DEFAULT '',
+  `phone` varchar(20) NOT NULL,
+  `email` varchar(100) DEFAULT '',
   `information` json NOT NULL COMMENT 'principal information',
   `files` mediumtext COMMENT 'url files or reference',
   `active` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 is active, 0 inactive',
@@ -19,9 +58,14 @@ CREATE TABLE IF NOT EXISTS `CRMLite_customersV2` (
   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create datetime',
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'last update',
   PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `phone` (`phone`),
   KEY `indx_id` (`id`) USING BTREE,
-  KEY `indx_created` (`created`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8;
+  KEY `indx_created` (`created`) USING BTREE,
+  KEY `indx_name` (`name`) USING BTREE,
+  KEY `indx_email` (`email`) USING BTREE,
+  KEY `indx_email_name_phone` (`id`,`name`,`phone`,`email`),
+  KEY `indx_agent` (`agent`)
+) ENGINE=InnoDB AUTO_INCREMENT=193699 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
 
@@ -38,6 +82,34 @@ CREATE TABLE IF NOT EXISTS `CRMLite_features` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table ccrepo.CRMLite_management
+CREATE TABLE IF NOT EXISTS `CRMLite_management` (
+  `id` int(100) unsigned NOT NULL AUTO_INCREMENT,
+  `id_customer` int(100) unsigned DEFAULT '0',
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `agent` varchar(100) DEFAULT '',
+  `lvl1` varchar(100) DEFAULT '',
+  `lvl2` varchar(100) DEFAULT '',
+  `lvl3` varchar(100) DEFAULT '',
+  `note` varchar(800) DEFAULT '',
+  `queuename` varchar(100) DEFAULT NULL,
+  `channel` varchar(40) DEFAULT NULL,
+  `guid` varchar(100) DEFAULT NULL,
+  `callid` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `Index_channel` (`channel`),
+  KEY `Index_lvl1` (`lvl1`),
+  KEY `Index_lvl2` (`lvl2`),
+  KEY `Index_lvl3` (`lvl2`),
+  KEY `Index_results` (`lvl1`,`lvl2`,`lvl3`),
+  KEY `Index_queue` (`queuename`),
+  KEY `Index_guid` (`guid`),
+  KEY `Index_agent` (`agent`),
+  KEY `index_date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table ccrepo.CRMLite_scripts
 CREATE TABLE IF NOT EXISTS `CRMLite_scripts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -45,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `CRMLite_scripts` (
   `channel` varchar(20) NOT NULL,
   `script` mediumtext,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
 
@@ -64,77 +136,36 @@ CREATE TABLE IF NOT EXISTS `CRMLite_structure` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table ccrepo.CRMLite_surveys
+CREATE TABLE IF NOT EXISTS `CRMLite_surveys` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `answers` json DEFAULT NULL,
+  `lastAction` varchar(50) DEFAULT '',
+  `initdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `finishdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `phone` varchar(30) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `guid` longtext,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for trigger ccrepo.CRMLiteManager_BeforeDelete_Primary_Fields
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
-CREATE TRIGGER `ccrepo`.`CRMLiteManager_BeforeDelete_Primary_Fields` BEFORE DELETE ON ccrepo.CRMLite_structure FOR EACH ROW
-BEGIN
+CREATE TRIGGER `CRMLiteManager_BeforeDelete_Primary_Fields` BEFORE DELETE ON `CRMLite_structure` FOR EACH ROW BEGIN
     IF(OLD.fieldId IN ("email", "phone", "name")) THEN
       CALL func(1);
       
     ELSE
     
     UPDATE ccrepo.CRMLite_customersV2 SET information = JSON_REMOVE(information, CONCAT('$.', OLD.fieldId));
-      
+    
 END IF;
 END//
 DELIMITER ;
-
--- Dumping structure for trigger ccrepo.CRMLiteManager_Data_Controler
-DELIMITER //
-CREATE TRIGGER `ccrepo`.`CRMLiteManager_Data_Controler` BEFORE INSERT ON ccrepo.CRMLite_customersV2 FOR EACH ROW
-BEGIN
-    SET @phone = (SELECT NEW.information ->> "$.phone");
-    SET @name = (SELECT NEW.information ->> "$.name");
-    SET @email = (SELECT NEW.information ->> "$.email");
-    
-    IF(@phone = "" OR @name = "") THEN
-      signal sqlstate '45000';
-      SET @MESSAGE_TEXT = "Phone or Name is undefined";
-
-     END IF;
-     
-     SET @foundPhone = (SELECT count(*) found FROM CRMLite_customersV2 WHERE information->>"$.phone" = @phone);
-     SET @foundEmail = (SELECT count(*) found FROM CRMLite_customersV2 WHERE information->>"$.email" = @email);
-     IF (@foundPhone > 0 OR @foundEmail > 0) THEN
-      signal sqlstate '45000';
-       -- Encontramos repetidos y cancelamos insert
-     END IF;
-END//
-DELIMITER ;
-
--- Dumping structure for trigger ccrepo.CRMLiteManager_Data_Controler_update
-DELIMITER //
-CREATE TRIGGER `ccrepo`.`CRMLiteManager_Data_Controler_update` BEFORE UPDATE ON ccrepo.CRMLite_customersV2 FOR EACH ROW
-BEGIN
-    SET @phone = (SELECT NEW.information ->> "$.phone");
-    SET @name = (SELECT NEW.information ->> "$.name");
-    SET @email = (SELECT NEW.information ->> "$.email");
-    
-    SET @oldPhone = (SELECT OLD.information ->> "$.phone");
-    SET @oldEmail = (SELECT OLD.information ->> "$.email");
-    
-    
-    IF(@phone = "" OR @name = "") THEN
-      signal sqlstate '45000';
-
-     END IF;
-     
-     SET @foundPhone = (SELECT count(*) found FROM CRMLite_customersV2 WHERE information->>"$.phone" = @phone);
-     SET @foundEmail = (SELECT count(*) found FROM CRMLite_customersV2 WHERE information->>"$.email" = @email);
-     
-     IF (@foundPhone > 0 AND @phone != @oldPhone) THEN
-      signal sqlstate '45000';
-       -- Encontramos telefonos repetidos y cancelamos update
-     END IF;
-     
-     IF (@foundEmail > 0 AND @email != @oldEmail AND @email != "") THEN
-      signal sqlstate '45000';
-       -- Encontramos emails repetidos y cancelamos update
-     END IF;
-END//
-DELIMITER ;
-
--- instalacion de features 
 
 INSERT INTO `CRMLite_features` (`name`, `description`, `placeholder`, `featureVal`, `requiredVal`, `active`) VALUES
 	('blindTransfer', 'Internal blind transfer data and call', NULL, '', 0, 1),
@@ -143,11 +174,7 @@ INSERT INTO `CRMLite_features` (`name`, `description`, `placeholder`, `featureVa
 	('defaultPreview', 'Dialer assignated to schedule manual calls', 'Dialer name', 'CRMLite_Scheduler->', 1, 1),
 	('historyLimit', 'Limit of rows from CRMLite history table', 'Rows', '10', 1, 1),
 	('outQueue', 'Default outbound campaign for calls from CRMLite', 'Outbound campaign', 'OUT->', 1, 1),
+	('RingbaTransfer', 'Transfer information to Ringba', 'Ringba ID', '1732894626169227170', 1, 1),
 	('saveWithoutDispo', 'Save without disposition if you are not in a interaction', NULL, NULL, 0, 1);
 
-
-INSERT INTO `CRMLite_structure` (`fieldId`, `name`, `fieldType`, `fieldValue`, `maxLength`, `required`, `active`, `position`) VALUES
-	('email', 'Email', 'email', '', 200, 1, 1, 2),
-	('name', 'Complete name', 'name', '', 100, 1, 1, 0),
-	('phone', 'Phone number', 'phone', '0', 15, 1, 1, 1);
-
+  

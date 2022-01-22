@@ -177,4 +177,8 @@ INSERT INTO `CRMLite_features` (`name`, `description`, `placeholder`, `featureVa
 	('RingbaTransfer', 'Transfer information to Ringba', 'Ringba ID', '1732894626169227170', 1, 1),
 	('saveWithoutDispo', 'Save without disposition if you are not in a interaction', NULL, NULL, 0, 1);
 
-  
+INSERT INTO `CRMLite_structure` (`fieldId`, `name`, `fieldType`, `fieldValue`, `maxLength`, `required`, `active`, `position`) VALUES 
+('email', 'Email', 'email', '', 200, 1, 1, 2),
+('name', 'First name', 'name', '', 100, 1, 1, 1),
+('phone', 'Phone number', 'phone', '0', 15, 1, 1, 0);
+

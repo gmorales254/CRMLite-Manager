@@ -153,7 +153,6 @@ CREATE TABLE IF NOT EXISTS `CRMLite_surveys` (
 -- Data exporting was unselected.
 
 -- Dumping structure for trigger ccrepo.CRMLiteManager_BeforeDelete_Primary_Fields
-SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 DELIMITER //
 CREATE TRIGGER `CRMLiteManager_BeforeDelete_Primary_Fields` BEFORE DELETE ON `CRMLite_structure` FOR EACH ROW BEGIN
     IF(OLD.fieldId IN ("email", "phone", "name")) THEN

@@ -187,7 +187,9 @@ document.getElementById("bdgNewfile").addEventListener("click", async () => { //
     `
         <input type="text" id="inpFieldId" class="swal2-input" style="width:220px;" placeholder="* Field ID (unique name)" />
         <input type="text" id="inpFieldName" class="swal2-input" style="width:220px;" placeholder="* Name or description" />
-        
+        ${document.getElementById('chk_RingbaTransfer').checked ? `
+        <input type="text" id="inpRingbatag" class="swal2-input" style="width:220px;" placeholder="Tag for ringba transfer"/>
+        ` : ""}
       <select id="cmbFieldType" class="swal2-input" style="width:220px;">
             <option disabled selected value>Select a type</option>
             ${fieldsAvailableHTML}
@@ -219,6 +221,7 @@ document.getElementById("bdgNewfile").addEventListener("click", async () => { //
       let objField = {
         fieldId: document.getElementById('inpFieldId').value,
         fieldName: document.getElementById('inpFieldName').value,
+        ringbatag: document.getElementById('chk_RingbaTransfer').checked ? document.getElementById('inpRingbatag').value : "",
         fieldValue: document.getElementById('inpFieldValue').value,
         fieldType: document.getElementById('cmbFieldType').value,
         fieldMaxLength: document.getElementById('inpMaxLenght').value,
@@ -236,7 +239,7 @@ document.getElementById("bdgNewfile").addEventListener("click", async () => { //
       }
       // si pasó todo OK, valido en la base:
 
-      const {fieldId, fieldName, fieldValue, fieldType, fieldMaxLength, fieldRequired, fieldActive} = objField;
+      const {fieldId, fieldName, fieldValue, fieldType, fieldMaxLength, fieldRequired, fieldActive, ringbatag} = objField;
 
       let resp = JSON.parse(await UC_get_async(`SELECT count(*) as 'registrosEncontrados' FROM ccrepo.CRMLite_structure WHERE fieldId = "${fieldId}"`, ''))[0];
       if (resp.registrosEncontrados != 0) {
@@ -244,13 +247,13 @@ document.getElementById("bdgNewfile").addEventListener("click", async () => { //
         return;
       } else {
         let lastPosition = JSON.parse(await UC_get_async(`SELECT position FROM ccrepo.CRMLite_structure ORDER BY position DESC LIMIT 1`, ''))[0].position;
-        let qq = await UC_exec_async(`INSERT INTO ccrepo.CRMLite_structure VALUES ("${fieldId}", "${fieldName}", "${fieldType}", 
-        "${fieldValue}", ${fieldMaxLength}, ${fieldRequired}, ${fieldActive}, ${lastPosition + 1})`, "");
+        let qq = await UC_exec_async(`INSERT INTO ccrepo.CRMLite_structure (fieldId, name, fieldType, fieldValue, maxLength, required, active, position, ringbatag) VALUES ("${fieldId}", "${fieldName}", "${fieldType}", 
+        "${fieldValue}", ${fieldMaxLength}, ${fieldRequired}, ${fieldActive}, ${lastPosition + 1}, "${ringbatag}")`, '');
 
         if (qq == "OK") {
           notification('Your field has been save successfully', "", 'fa fa-success', 'success');
         } else {
-          notification('Error', 'Problems in the database', 'fa fa-warning', 'error');
+          notification('Error', 'Problems in the database', 'fa fa-error', 'warning');
           return;
         }
 
@@ -376,7 +379,9 @@ async function changeFieldInformation(fieldId) {
     `
         <input type="text" id="inpFieldId" class="swal2-input" style="width:220px;" placeholder="* Field ID (unique name)" disabled value="${resp.fieldId}"/>
         <input type="text" id="inpFieldName" class="swal2-input" style="width:220px;" placeholder="* Name or description" value="${resp.name}"/>
-        
+        ${document.getElementById('chk_RingbaTransfer').checked ? `
+        <input type="text" id="inpRingbatag" class="swal2-input" style="width:220px;" placeholder="Tag for ringba transfer" value="${resp.ringbatag}"/>
+        ` : ""}
       <select id="cmbFieldType" class="swal2-input" style="width:220px;">
             <option disabled value>Select a type</option>
             ${fieldsAvailableHTMLtemp}
@@ -411,6 +416,7 @@ async function changeFieldInformation(fieldId) {
         fieldValue: document.getElementById('inpFieldValue').value,
         fieldType: document.getElementById('cmbFieldType').value,
         fieldMaxLength: document.getElementById('inpMaxLenght').value,
+        ringbatag: document.getElementById('chk_RingbaTransfer').checked ? document.getElementById('inpRingbatag').value : "",
         fieldRequired: document.getElementById('chkFieldRequired').checked == true ? 1 : 0,
         fieldActive: document.getElementById('chkFieldActive').checked == true ? 1 : 0
       }
@@ -447,6 +453,7 @@ async function updateFieldInformation(objField) {
   objUpdate.maxLength = objField.fieldMaxLength;
   objUpdate.required = objField.fieldRequired;
   objUpdate.active = objField.fieldActive;
+  objUpdate.ringbatag = objField.ringbatag;
 
   let exec = await UC_update_async(objUpdate, 'CRMLite_structure', 'fieldId', 'Repo');
   if (exec === "OK") notification("Your field has been updated successfully", "", "fa fa-success", "success");

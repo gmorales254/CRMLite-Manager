@@ -38,7 +38,7 @@ export async function loadInformation(filter = false) {
 		jsonQuery += headerIndexEnd == indx ? '' : ','; //si no sos el ultimo, te pongo coma.
 	});
 
-	content = JSON.parse(await UC_get_async(`SELECT id, ${jsonQuery}, files, active, agent, created, updated FROM CRMLite_customersV2 WHERE active = 1`, "Repo"));
+	content = JSON.parse(await UC_get_async(`SELECT id, name, phone, email, ${jsonQuery}, files, active, agent, created, updated FROM CRMLite_customersV2`, "Repo"));
 	if (!content) return { error: "nothing to load" };
 	console.log(content);
 
@@ -104,7 +104,6 @@ export async function loadTable(page = 1) {
 		let contentTemp = "";
 		contentTemp += `<td>${arrItems[i]['id']}</td>`;
 		arrHeaders.map((item) => {
-
 			let itemName = arrItems[i][item.fieldId];
 			contentTemp += `<td>${itemName ? itemName : ""}</td>`;
 		});
@@ -239,7 +238,7 @@ let btn_upload = document.getElementById('btnUploadBase').addEventListener('clic
 		input: 'radio',
 		inputOptions: {
 			"customer": "Bulk a customers",
-			"dialer": "Bulk a new dialer base"
+			"dialer": "New dialer base"
 		},
 		inputValidator: (value) => {
 			if (!value) {
@@ -259,16 +258,16 @@ let btn_upload = document.getElementById('btnUploadBase').addEventListener('clic
 			inputValidator: (value) => {
 				return new Promise((resolve) => {
 					if (!value) {
-						resolve('You need to select something')
+						resolve('You need to select something');
 					} else {
-						resolve()
+						resolve();
 					}
 				})
 			}
 		})
 
 		if (!dialeropt) {
-			return;
+			return; //cancelo subida por falta de marcador.
 		} else {
 			dialerSelected = dialeropt;
 		}
@@ -279,39 +278,80 @@ let btn_upload = document.getElementById('btnUploadBase').addEventListener('clic
 		download: true,
 		header: true,
 		complete: async (results) => {
-			if (bulkopt === "customer") await uploadNewCustomers(results);
-			else await uploadNewDialerBase(dialerSelected, results.data, results.errors);
+			if (bulkopt === "customer") {
+
+				parent.loaderSetVisible(true);
+				let upload = await uploadNewCustomers(results);
+
+				parent.loaderSetVisible(false);
+				if (upload === "ERROR") return;
+			}
+			else {
+
+				document.getElementById('inpUploadBase').files[0]
+
+				let validarNombre = /^([a-zA-Z0-9_-]*)$/g;
+				let fileName = document.getElementById('inpUploadBase').files[0].name
+				if (fileName.substr(fileName.length - 3) !== "csv") {
+					parent.notificate("", "This is not a CSV file", "danger", ".");
+					return;
+				}
+				fileName = fileName.split('.csv')[0];
+				fileName = fileName.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+				if (fileName.length > 54) { //tomo 54 ya que cuento el .csv, máximo son 50 caracteres
+					parent.notificate("DIALERNAMELENGTHERROR", null, "danger");
+				} else if (!(validarNombre.test(fileName)) == true) {
+					parent.notificate("DIALERFILEBADCHARS", null, "danger");
+				} else if (fileName.startsWith('R')) {
+					parent.notificate("DIALERFILESTARTR", null, "danger");
+				} else {
+
+					parent.loaderSetVisible(true);
+					let uploadresp = await uploadNewCustomers(results);
+					if (uploadresp !== "ERROR") {
+						await uploadNewDialerBase(dialerSelected, results.data, results.errors, fileName);
+					}
+
+					parent.loaderSetVisible(false);
+
+				}
+
+			}
 		}
 	});
 });
 
-async function uploadNewDialerBase(dialer, data, errors) {
-	parent.loaderSetVisible(true);
+async function uploadNewDialerBase(dialer, data, errors, fileName) {
 
 	data = await validateNewCustomers(data, errors);
 
-	if (!data.length) return { error: "no data" };
+	if (!data.length) {
+
+		return { error: "no data" }
+
+	}
 
 	let dataFormated = "";
-	data.map((element, arr, pos) => {
+	data.map((element) => {
 		//campaign;destination;parandvals;alternatives;priority;agent
 		dataFormated += `${dialer};`; //campaign
-	dataFormated += `${element.phone};`; //destination
-		dataFormated += Object.keys(element).map(function (key) {
+		dataFormated += `${element.phone};`; //destination
+
+		/*dataFormated += Object.keys(element).map(function (key) {
 
 		return key + "=" + element[key].replace(/#/g, '').replace(/:/g, '').replace(/=/g, '').replace(/'/g, ''); // reemplazo #:=' por caracter vacio
 
-		}).join(":") + ";"; //parandvals
-		dataFormated += ";"; //alternatives
+		}).join(":") + ";"; //parandvals  YA NO AGREGAMOS DATOS AL PAR AND VALUES, DIRECTAMENTE VAN EN CUSTOMERSV2 */
+
+		dataFormated += ";;"; //alternatives 
 		dataFormated += "9999;"; //priority
-		dataFormated += `\n`; // agents
+		dataFormated += `\n`; // agent
 
 	});
 
 	dataFormated = btoa(dataFormated); //pasamos la base a B64
-	
-	ajaxUploadBase(dataFormated, dialer, 'CRMLITEBASE', data.length); //subo base;
-	parent.loaderSetVisible(false);
+
+	ajaxUploadBase(dataFormated, dialer, fileName ? fileName : "CRMLite", data.length); //subo base;
 	notification('Success', "The process has been finalize", "fa fa-success", 'success');
 
 }
@@ -362,9 +402,8 @@ async function validateNewCustomers(data, errors) {
 		}
 
 	} catch (e) {
-		parent.loaderSetVisible(false);
 		notification('Error in file structure', '', 'fa fa-warning', 'warning');
-		return;
+		return "ERROR";
 	}
 
 	return data;
@@ -372,12 +411,13 @@ async function validateNewCustomers(data, errors) {
 }
 
 async function uploadNewCustomers(result) {
-	parent.loaderSetVisible(true); // loader visible activado;
 
 	let {data, errors = [], meta} = result;
 
 	data = await validateNewCustomers(data, errors);
-
+	if (data === "ERROR") {
+		return "ERROR";
+	}
 	//empezar subida si tengo datos buenos:
 	let dataTemp = [];
 	let fecha = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -388,12 +428,24 @@ async function uploadNewCustomers(result) {
 			let objTemp = {};
 
 			arrHeaders.map((item) => {
-				let elementVal = element[item.fieldId];
-				objTemp[item.fieldId] = elementVal ? elementVal : "";
+				if (item.fieldId !== "phone" && item.fieldId !== "name" && item.fieldId !== "email" && element[item.fieldId]) {
+
+					let elementVal = element[item.fieldId].replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+					objTemp[item.fieldId] = elementVal ? elementVal : "";
+
+				}
 			});
+			let phone = element.phone.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+			let name = element.name.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+			let email = element.email.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+			email = email == undefined ? '' : email;
+			name = name == undefined ? '' : name; 
 
-
-			dataTemp.push({ information: `'${JSON.stringify(objTemp)}'`, active: '1', agent: `'${parent.agent.accountcode}'`, created: `'${fecha}'` }) //bbjeto con  fields para la base
+			dataTemp.push({
+				name: `'${name}'`, phone: `'${phone}'`, email: `'${email}'`,
+				information: `'${JSON.stringify(objTemp)}'`, active: '1', agent: `'${parent.agent.accountcode}'`,
+				created: `'${fecha}'`
+			}) //objeto con  fields para la base
 
 		});
 
@@ -431,7 +483,7 @@ async function UC_BulkUploadFromArrObj(arrObj = [{}], table = "", dsn = "ccrepo"
 
 
 	queryExec += `${headers} VALUES ${Values}` //EJEMPLO: (exp1, exp2, exp3) VALUES ('1', '2', '3'), ('1', '2', '3')
-	queryExec = queryExec.replace(/.$/, ';'); // Reemplazo el último caracter por un ;
+	queryExec = queryExec.replace(/.$/, ' ON DUPLICATE KEY UPDATE information = information;'); // Reemplazo el último caracter por "ON DUPLICATE KEY UPDATE;"
 
 	let resp = await UC_exec_async(queryExec, '');
 	return resp;
@@ -448,7 +500,6 @@ function validarResultados(archivo) {
 		delimiter: ";"
 	});
 
-	parent.loaderSetVisible(false); // loader visible activado;
 
 }
 
@@ -540,6 +591,8 @@ document.getElementById('btnDownloadReport').addEventListener('click', async () 
 });
 
 async function downloadReport() {
+
+	parent.loaderSetVisible(true);
 	let arrReport = [];
 
 	//-- HEADERS -->
@@ -562,7 +615,7 @@ async function downloadReport() {
 
 		arrHeaders.map((header) => {
 			let itemName = item[header.fieldId];
-			contentTemp.push(itemName ? itemName.replace(/#/g, '') : "-");
+			contentTemp.push(itemName ? itemName.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '') : "");
 		});
 
 		contentTemp.push(item['active']);
@@ -583,6 +636,7 @@ async function downloadReport() {
 	document.body.appendChild(link); // Required for FF
 	link.click(); // Va a descargar el archivo que contiene los ejemplos de los campos "customers_report.csv". 
 
+	parent.loaderSetVisible(false);
 
 }
 
@@ -593,10 +647,8 @@ async function downloadReport() {
 
 document.getElementById('btnRefreshTableCustomers').addEventListener('click', async () => {
 
-	parent.loaderSetVisible(true);
 	await loadInformation();
 	await loadTable();
-	parent.loaderSetVisible(false);
 });
 
 document.getElementById('btnDeleteCustomers').addEventListener('click', async () => {
@@ -722,9 +774,7 @@ document.getElementById('btnApplyFilter').addEventListener('click', async () => 
 /* INIT FUNCTIONS */
 
 $(async () => {
-	parent.loaderSetVisible(true);
 	let initialInfo = await loadInformation();
 	if (initialInfo.error) return;
 	await loadTable();
-	parent.loaderSetVisible(false);
 })

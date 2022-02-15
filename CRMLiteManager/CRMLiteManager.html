@@ -3,23 +3,26 @@
 		background-color: rgba(0, 0, 0, 0.4);
 		max-width: 1000px;
 	}
-	
+
 	.sections {
 		color: white;
 	}
-	
+
 	.columna {
 		display: flex;
 		flex-direction: column;
 	}
+
 	
 	.fila {
+		
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 	}
+
 	/* NAV SECTION */
-	
+
 	#tabs .tab {
 		display: inline-block;
 		padding: 5px 10px;
@@ -28,14 +31,14 @@
 		z-index: 5;
 		color: grey;
 	}
-	
+
 	#tabs .whiteborder {
 		border: 1px solid #707070;
 		border-bottom: 1px solid #fff;
 		border-radius: 3px 3px 0 0;
 		color: white;
 	}
-	
+
 	#tabs .tabContent {
 		position: relative;
 		top: -1px;
@@ -43,46 +46,47 @@
 		padding: 10px;
 		border-radius: 0 0 3px 3px
 	}
-	
+
 	#tabs .hide {
 		display: none;
 	}
-	
+
 	#tabs .show {
 		display: block;
 	}
-	
+
 	.tab-content {
 		overflow: auto;
 	}
+
 	/* Customer Section */
-	
+
 	#customers_table_downloadButtons {
 		float: right;
 	}
-	
-	#customers_table_downloadButtons > button {
+
+	#customers_table_downloadButtons>button {
 		margin-left: 5px;
 	}
-	
+
 	#customers_table_pagination {
 		float: left;
 	}
-	
+
 	.pagination {
 		margin: 0px !important;
 	}
-	
+
 	.panel {
 		margin-bottom: 0px !important;
 	}
-	
+
 	.customers_search {
 		display: flex;
 		justify-content: center;
 		margin: 10px;
 	}
-	
+
 	.customers_uploadbase_section {
 		margin-top: 2em;
 		display: flex;
@@ -90,32 +94,32 @@
 		background-color: rgba(0, 0, 0, 0.4);
 		padding: 20px 2px 20px 2px;
 	}
-	
+
 	.customers_uploadbase_section button {
 		width: 300px;
 		min-width: 150px;
 	}
-	
+
 	.customers_uploadbase_section input {
 		max-width: 300px;
 		min-width: 150px;
 	}
-	
+
 	.tablewraping {
 		width: 100%;
 		overflow: auto;
 	}
-	
+
 	.table {
 		max-width: none !important;
 	}
-	
+
 	.customers_search_section {
 		display: flex;
 		justify-content: center;
 		display: none;
 	}
-	
+
 	.drop-zone {
 		max-width: 300px;
 		height: 100px;
@@ -132,15 +136,15 @@
 		border: 4px dashed #009578;
 		border-radius: 10px;
 	}
-	
+
 	.drop-zone--over {
 		border-style: solid;
 	}
-	
+
 	.drop-zone__input {
 		display: block !important;
 	}
-	
+
 	.drop-zone__thumb {
 		width: 100%;
 		height: 100%;
@@ -151,7 +155,7 @@
 		position: relative;
 		display: none;
 	}
-	
+
 	.drop-zone__thumb::after {
 		content: attr(data-label);
 		position: absolute;
@@ -164,9 +168,10 @@
 		font-size: 14px;
 		text-align: center;
 	}
+
 	/* Customer Section */
 	/* Script designer */
-	
+
 	.script__textarea {
 		width: 100%;
 		max-width: 80%;
@@ -176,35 +181,36 @@
 		color: black;
 		height: 200px;
 	}
-	
+
 	.script__container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 	}
-	
+
 	#txtScript {
 		width: 100%;
 		max-width: 800px;
 	}
+
 	/* Script designer */
 	/* Drag and drop fields */
-	
+
 	.container_sort {
 		margin: 20px auto 0;
 		max-width: 500px;
 		word-wrap: break-word;
 	}
-	
-	container_sort > * {
+
+	container_sort>* {
 		box-sizing: border-box;
 	}
-	
+
 	.ul_drag_sort_fields {
 		margin: 0;
 		padding: 0;
 	}
-	
+
 	.li_drag_sort_fields {
 		margin: 5px 0;
 		padding: 0 20px;
@@ -217,18 +223,38 @@
 		color: #fff;
 		list-style: none;
 	}
-	
+
 	li.drag-sort-active {
 		background: transparent;
 		color: transparent;
 		border: 1px solid #4ca1af;
 	}
-	
+
 	span.drag-sort-active {
 		background: transparent;
 		color: transparent;
 	}
+
 	/* Drag and drop fields */
+	/* BOT Designer */
+
+	.botdesigner_section>.input-group {
+		margin-bottom: 10px;
+	}
+
+	.botdesigner__questioninbutton {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	.botdesigner_questionconfig {
+		border: solid;
+		border-color: rgba(0, 0, 0, 0.2);
+	}
+
+	
+	/* BOT DESIGNER */
 </style>
 
 <script src="./chart.js"></script>
@@ -241,10 +267,11 @@
 		<div class="tab whiteborder">Customer</div>
 		<div class="tab">General information</div>
 		<div class="tab">Script designer</div>
-		<div class="tab">Surveybot designer</div>
+		<div class="tab">Bot Designer</div>
 
 		<div class="tab-content" id="myTabContent">
-			<div role="tabpanel" id="sectionCustomers" class="tabContent tab-pane fade sections active in" aria-labelledby="home-tab">
+			<div role="tabpanel" id="sectionCustomers" class="tabContent tab-pane fade sections active in"
+				aria-labelledby="home-tab">
 				<h3>Customer information</h3>
 				<span>You can download the customer information, management or dispositions</span>
 				<hr>
@@ -252,10 +279,11 @@
 					<div class="columna">
 						<div class="inputs customers_search_section">
 							<div class="input-group" style="width: 300px;">
-								<input id="txtSearch" type="text" class="form-control" data-i18n="" placeholder="Search" aria-describedby="basic-addon1"
-									data-toggle="tooltip" title="" data-original-title="Search">
+								<input id="txtSearch" type="text" class="form-control" data-i18n="" placeholder="Search"
+									aria-describedby="basic-addon1" data-toggle="tooltip" title=""
+									data-original-title="Search">
 								<span class="input-group-addon btnsearch" id="btnSearch">
-                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 								</span>
 							</div>
 						</div>
@@ -269,14 +297,19 @@
 									<div class="panel-heading" style="height: 60px;">
 										<span>Customer information</span>
 										<div style="float: right;">
-											<button id="btnApplyFilter" disabled="" type="button" class=" btn" style="line-height: 26px; background-color: #7367f0 !important; color: white;"
+											<button id="btnApplyFilter" disabled="" type="button" class=" btn"
+												style="line-height: 26px; background-color: #7367f0 !important; color: white;"
 												aria-label=""><i class="fa fa-filter"></i></button>
-											<button id="btnRefreshTableCustomers" type="button" class="btn-success btn" style="line-height: 26px;" aria-label=""><i class="fa fa-refresh"></i></button>
-											<button id="btnDeleteCustomers" type="button" class="btn btn-danger" style="line-height: 26px;">
-                                <span style="background: none repeat scroll 0% 0% transparent;border: 0px none;color: #FFF">
-                                    <i class="fa fa-trash "></i>
-                                </span>
-                        </button>
+											<button id="btnRefreshTableCustomers" type="button" class="btn-success btn"
+												style="line-height: 26px;" aria-label=""><i
+													class="fa fa-refresh"></i></button>
+											<button id="btnDeleteCustomers" type="button" class="btn btn-danger"
+												style="line-height: 26px;">
+												<span
+													style="background: none repeat scroll 0% 0% transparent;border: 0px none;color: #FFF">
+													<i class="fa fa-trash "></i>
+												</span>
+											</button>
 										</div>
 									</div>
 									<div class="tablewraping">
@@ -298,7 +331,8 @@
 						<div class="footer customers_footer">
 							<div id="customers_table_pagination"></div>
 							<div id="customers_table_downloadButtons">
-								<button type="button" id="btnDownloadReport" class="btn btn-info">Download report</button>
+								<button type="button" id="btnDownloadReport" class="btn btn-info">Download
+									report</button>
 							</div>
 
 						</div>
@@ -311,7 +345,8 @@
 								<span class="drop-zone__prompt"></span>
 								<input type="file" name="myFile" id="inpUploadBase" class="drop-zone__input">
 							</div>
-							<button type="button" id="btnUploadBase" class="btn btn-success" style="margin-bottom: 15px;">Upload base</button>
+							<button type="button" id="btnUploadBase" class="btn btn-success"
+								style="margin-bottom: 15px;">Upload base</button>
 							<button type="button" id="btnDownloadExample" class="btn btn-info">Download example</button>
 						</div>
 
@@ -321,7 +356,8 @@
 
 
 
-			<div role="tabpanel" class="tabContent tab-pane fade sections active in hide" id="sectionSettings" aria-labelledby="home-tab">
+			<div role="tabpanel" class="tabContent tab-pane fade sections active in hide" id="sectionSettings"
+				aria-labelledby="home-tab">
 				<h3>General Settings</h3>
 				<p>Setup all the features do you want to see on CRMLite</p>
 				<hr>
@@ -377,8 +413,8 @@
 				<div class="script__container">
 					<div class="script__queues">
 						<select id="cmbScriptQueues" class="combobox-ui form-control" style="color:black;">
-						<option disabled="" selected="">prueba</option>
-					</select>
+							<option disabled="" selected="">Select a campaign</option>
+						</select>
 					</div>
 
 					<div style="width: 80%; display: flex; justify-content: center;">
@@ -395,37 +431,145 @@
 				<p>Design your own bots with a simple survey form</p>
 				<hr>
 				<div class="botdesigner__container">
+					<div class="botdesigner__campaigns" style="width: 300px;display: flex;justify-content: center;">
+						<select id="cmbBotChannelsCampaigns" class="combobox-ui form-control" style="color:black;">
+							<option value="" disabled="" selected="">Select a channel</option>
+						</select>
 
+						<span style="color:#ffffff" id="spnBotLastUpdate_main">last update: <span id="spnBotLastUpdate">YYYY-mm-dd 00:00:00</span></span>
+						
+						<button class="btn btn-success btnNormal" data-btn="btnBotSave" id="btnBotSave">Save / update</button>
+					</div>
+					<div class="botdesigner_section">
+						<div class="botdesigner_settings">
+							<div class="input-group">
+								<span class="label fvalidation__inputs">Title</span>
+								<input id="txtBotTitle" type="text" class="form-control" data-i18n=""
+									placeholder="Title" aria-describedby="basic-addon1" data-toggle="tooltip"
+									title="" data-original-title="Title for the bot">
+							</div>
+							<div class="input-group">
+								<span class="label fvalidation__inputs">Language</span>
+								<select id="cmbBotLanguage" class="combobox-ui form-control" style="color:black;">
+									<option value disabled selected>Select a language</option>
+									<option value="es">Spanish</option>
+									<option value="en">English</option>
+								</select>
+							</div>
+
+							<div class="input-group">
+								<span class="label fvalidation__inputs">Welcome message</span>
+								<input id="txtBotWelcome" type="text" class="form-control" data-i18n=""
+									placeholder="Welcome message" aria-describedby="basic-addon1" data-toggle="tooltip"
+									title="Welcome message" data-original-title="Welcome to my new brand bot">
+							</div>
+							<div class="input-group">
+								<span class="label fvalidation__inputs">Message before finish interaction</span>
+								<input id="txtBotMsgBeforeFinishInteraction" type="text" class="form-control"
+									placeholder="Message before finish interaction"
+									aria-describedby="basic-addon1" data-toggle="tooltip" title="Message before finish interaction"
+									data-original-title="Have a great day!">
+							</div>
+							<div class="input-group">
+								<span class="label fvalidation__inputs">Message after timeout</span>
+								<input id="txtBotMsgAfterTimeout" type="text" class="form-control" data-i18n=""
+									placeholder="Message after timeout" aria-describedby="basic-addon1" data-toggle="tooltip"
+									title="Message after timeout" data-original-title="We'll transfer you to our agents, please wait.">
+							</div>
+							<div class="input-group">
+								<span class="label fvalidation__inputs">Action after timeout</span>
+								<div style="display: flex;flex-direction: row;">
+
+									<select id="cmbBotAfterFinish1" class="form-control" >
+										<option value="goto:finish">Finish interaction</option>
+										<option value="queuetransfer">Transfer to queue</option>
+									</select>
+									<select id="cmbBotAfterFinish2" class="form-control" style="width: 50%;">
+										<option value disabled selected>Select an option</option>
+									</select>
+								</div>
+							</div>
+							<div class="input-group">
+								<div class="checkbox checkbox-in-line check-transparent">
+									<input type="checkbox" id="chkBotRequiredInfo">
+									<label for="chkBotRequiredInfo">Required information</label>
+								</div>
+							</div>
+							<div class="input-group">
+								<div class="checkbox checkbox-in-line check-transparent">
+									<input type="checkbox" id="chkBotSendInteractionHistory">
+									<label for="chkBotSendInteractionHistory">Send customer interaction flow by E-mail</label>
+								</div>
+							</div>
+							<div id="botdesigner_emailSection">
+								
+								<div class="input-group">
+									<span class="label fvalidation__inputs">Email campaign</span>
+										<select id="cmbBotEmailCampaign" class="form-control" >
+											<option value="" disabled selected>Select an email campaign</option>
+										</select>
+								</div>
+								<div class="input-group">
+									<span class="label fvalidation__inputs">Email to</span>
+								<input id="txtBotEmailTo" type="text" class="form-control" data-i18n=""
+									placeholder="Email to" aria-describedby="basic-addon1" data-toggle="tooltip"
+									title="" data-original-title="Email to">
+								</div>
+								<div class="input-group">
+									<span class="label fvalidation__inputs">Email CC</span>
+								<input id="txtBotEmailCC" type="text" class="form-control" data-i18n=""
+									placeholder="Email CC" aria-describedby="basic-addon1" data-toggle="tooltip"
+									title="" data-original-title="Email CC">
+								</div>
+							</div>
+						</div>
+						<div class="botdesigner__questions">
+
+							<div id="pruebacollapse" class="botdesginer__questionconfig" aria-expanded="false">
+								<div id="surveyContainer">
+									<div id="surveyHolder" class="ui-sortable">
+										
+									</div>
+									<div id="botpregunta_addquestion" class="element control botpregunta__div ">
+											
+										<span>New question</span>
+										
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
 				</div>
+
 			</div>
 
+
 		</div>
-
-
 	</div>
+
+
+	<!-- NO BORRAR / DO NOT DELETE -->
+
+	<div id="scripts"></div>
+	<script type="text/javascript">
+		if (typeof modo === 'undefined') {
+			document.open();
+			document.write(
+				'<script onload="loadConf()"  type="text/javascript" src="../../uContact/assets/js/vendor/jquery/jquery.js"><\/script>'
+			);
+			document.close();
+		} else {
+			formToDay();
+		}
+
+		function loadConf() {
+			$.ajaxSetup({
+				cache: true
+			});
+			$("#scripts").load("config.html");
+		}
+	</script>
+
+	<!-- NO BORRAR / DO NOT DELETE -->
 </div>
-
-
-<!-- NO BORRAR / DO NOT DELETE -->
-
-<div id="scripts"></div>
-<script type="text/javascript">
-    if (typeof modo === 'undefined') {
-        document.open();
-        document.write(
-            '<script onload="loadConf()"  type="text/javascript" src="../../uContact/assets/js/vendor/jquery/jquery.js"><\/script>'
-        );
-        document.close();
-    } else {
-        formToDay();
-    }
-
-    function loadConf() {
-        $.ajaxSetup({
-            cache: true
-        });
-        $("#scripts").load("config.html");
-    }
-</script>
-
-<!-- NO BORRAR / DO NOT DELETE -->

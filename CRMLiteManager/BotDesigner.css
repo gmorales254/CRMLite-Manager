@@ -1,0 +1,364 @@
+.pregunta {
+  float: left;
+  width: 100%;
+}
+
+
+.optionInput {
+  width: 88%;
+  background: transparent;
+  padding: 6px;
+  border: 0px;
+  border-bottom: 0px;
+  color: #c5c5c5;
+}
+
+.elementController {
+  width: 100%;
+  float: left;
+  clear: both;
+}
+
+.element.activeElement
+  > .elementController
+  > .optionsHolder
+  > .holderRound:hover {
+  background: rgba(255, 255, 255, 0.05);
+  cursor: move;
+}
+
+.question {
+  width: 60%;
+  float: left;
+  clear: left;
+}
+
+.selectElement {
+  width: 40%;
+  float: left;
+  clear: right;
+}
+
+.element {
+  padding: 35px;
+  -webkit-transition: background 300ms ease-in;
+  -moz-transition: background 300ms ease-in;
+  -ms-transition: background 300ms ease-in;
+  -o-transition: background 300ms ease-in;
+  transition: background 300ms ease-in;
+  float: left;
+  width: 100%;
+  clear: both;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.35);
+}
+
+.element:hover {
+  cursor: pointer;
+}
+
+.input-element:focus {
+  border: 0px;
+  outline: 0px;
+}
+
+.optionInput:focus {
+  border-bottom: 1px dotted #8e7d83;
+  outline: 0px;
+}
+
+.element.activeElement .input-element {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.46);
+}
+
+.element.activeElement .inputOthers {
+  border-bottom: 1px dotted grey;
+}
+
+.element.activeElement {
+  border-left: 3px solid #989898;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.input-element {
+  display: block;
+  margin-bottom: 20px;
+  width: 100%;
+  resize: vertical;
+  background: transparent;
+  border: none;
+  color: white;
+  padding-left: 0px;
+  font-size: 16px;
+}
+
+#surveyContainer {
+  width: 100%;
+  height: 100%;
+}
+
+#surveyHolder {
+  width: 90%;
+  height: 93%;
+  margin: auto;
+  overflow-y: scroll;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.ui-sortable-placeholder {
+  visibility: visible !important;
+  border-left: 3px solid #989898;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.ui-sortable-helper {
+  border-left: 3px solid #989898;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.txtAnswer {
+  background: transparent;
+  border: 0px;
+  padding: 4px;
+  border-bottom: 1px dotted #8e7d83;
+  width: 50%;
+}
+
+.holderRound {
+  padding: 9px;
+}
+
+.elementController.input-group.date {
+  width: 40%;
+}
+
+.input-group.date {
+  width: 40%;
+}
+
+.input-group.date > input {
+  background: rgba(0, 0, 0, 0.28) !important;
+}
+
+.input-group-addon {
+  padding: 4px 12px !important;
+}
+
+.deleteOption {
+  color: rgba(255, 255, 255, 0.55);
+  display: inline-block;
+  font-size: 22px;
+}
+
+.inputOthers {
+  width: 99%;
+  background: transparent;
+  padding: 6px;
+  border: 0px;
+  border-bottom: 0px;
+  color: #c5c5c5;
+  padding: 2px;
+  margin-bottom: 14px;
+}
+
+.deleteOption:hover {
+  cursor: pointer !important;
+}
+
+.btnOtro {
+  margin-left: 15px;
+}
+
+.switchery > small {
+  background: #fff;
+  border-radius: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  height: 18px !important;
+  position: absolute;
+  top: 0;
+  width: 18px !important;
+}
+
+.switchery {
+  border: 0px !important;
+}
+
+.switch-hold {
+  display: flex;
+  float: left;
+  color: #989292;
+}
+
+.element > .switch-hold {
+  display: none;
+}
+
+.element.activeElement > .switch-hold {
+  display: flex !important;
+}
+
+.selectActionOnOption2{
+  max-width: 120px;
+}
+
+#surveyHistoryHolder {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  z-index: 9999999;
+}
+
+.chartSurvey {
+  height: 300px;
+  width: 50%;
+  float: left;
+  border-left: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+#surveyHistory {
+  width: 56.7%;
+  background: rgba(0, 0, 0, 0.79);
+  margin: auto;
+}
+
+#holderBtnSurvey {
+  display: none;
+}
+
+#surveyHistory > div {
+  height: 300px;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.3);
+}
+
+#surveyHistoryHolder {
+  overflow: auto;
+}
+
+.txtPregunta {
+  font-size: 20px;
+  color: white;
+  width: 50%;
+  float: left;
+  text-align: center;
+  padding-top: 119px;
+}
+
+.numberTimes {
+  float: right;
+  margin-right: 21px;
+}
+
+.holderRespuesta {
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  padding-left: 13px;
+  color: whitesmoke;
+  padding-left: 30px;
+}
+
+.switchery {
+  margin-right: 9px;
+}
+
+#surveyHistoryHolder {
+  display: none;
+}
+
+.logicSwitch {
+  color: black;
+}
+
+.pregunta.logicInput .separator.section {
+  visibility: hidden;
+}
+
+.specialCheck {
+  margin-left: 0px !important;
+  float: right;
+  margin-top: 9px !important;
+}
+
+.botpregunta__div {
+  border: white solid 1px;
+}
+
+.botdesigner_section {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.botdesigner_settings {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.botdesigner__questions {
+  width: 100%;
+}
+
+.botdesigner_settings > .input-group {
+  margin: 5px;
+  width: 300px;
+  color: black;
+}
+
+.botdesigner__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.botdesigner__campaigns {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+}
+
+#botdesigner_emailSection {
+  border: #fff solid 1px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 10px;
+}
+
+#botdesigner_emailSection > .input-group {
+  margin: 5px;
+  width: 300px;
+}
+
+.botdesigner__campaigns > .form-control {
+  margin: 5px;
+}
+
+#botpregunta_addquestion{
+  background: rgba(0, 100, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: x-large;
+
+}
+
+#botpregunta_addquestion:hover{
+  cursor: pointer;
+  background: rgba(0, 100, 0, 0.5);
+}
+
+@media screen and (max-width: 700px) {
+  .botdesigner_settings > .input-group {
+    width: 95% !important;
+  }
+
+  .botdesigner__campaigns {
+    width: 95%;
+  }
+}

@@ -24,8 +24,8 @@ jobs:
           cp -a $GITHUB_WORKSPACE/BOT-WORKFLOW $GITHUB_WORKSPACE/CRMLite-Manager/
 
           # Comprimimos la carpeta CRMLite-Manager en .zip
-          zip -9 -r CRMLite-Manager-${GITHUB_REF:10}.zip CRMLite-Manager
-          cp CRMLite-Manager-${GITHUB_REF:10}.zip CRMLite-Manager
+          zip -9 -r CRMLite-Manager${GITHUB_REF:10}.zip CRMLite-Manager
+          cp CRMLite-Manager${GITHUB_REF:10}.zip CRMLite-Manager
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v1-release
         with:

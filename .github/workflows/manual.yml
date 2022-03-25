@@ -19,7 +19,7 @@ jobs:
           echo ::set-output name=version::${GITHUB_REF:10}
           echo ::set-output name=path::$GITHUB_WORKSPACE/CRMLite-Manager
           # Copia de archivos del repositorio a la carpeta CRMLite-Manager
-          cp -a $GITHUB_WORKSPACE/CRMliteManager $GITHUB_WORKSPACE/CRMLite-Manager/
+          cp -a $GITHUB_WORKSPACE/CRMLiteManager $GITHUB_WORKSPACE/CRMLite-Manager/
           cp -a $GITHUB_WORKSPACE/DB $GITHUB_WORKSPACE/CRMLite-Manager/
           cp -a $GITHUB_WORKSPACE/BOT-WORKFLOW $GITHUB_WORKSPACE/CRMLite-Manager/
 

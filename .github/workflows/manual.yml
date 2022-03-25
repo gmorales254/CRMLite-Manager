@@ -15,22 +15,22 @@ jobs:
       - name: Run a multi-line script
         id: build
         run: |
-          mkdir -p $GITHUB_WORKSPACE/CRMLite_Manager
+          mkdir -p $GITHUB_WORKSPACE/CRMLite-Manager
           echo ::set-output name=version::${GITHUB_REF:10}
-          echo ::set-output name=path::$GITHUB_WORKSPACE/CRMlite
-          # Copia de archivos del repositorio a la carpeta CRMlite
-          cp -a $GITHUB_WORKSPACE/Infinity $GITHUB_WORKSPACE/CleverPack/
-          cp -a $GITHUB_WORKSPACE/EPIC $GITHUB_WORKSPACE/CleverPack/
-          cp -a $GITHUB_WORKSPACE/SALESFORCE $GITHUB_WORKSPACE/CleverPack/
-          
-          # Comprimimos la carpeta CRMlite_Manager en .zip
-          zip -9 -r CRMLite_Manager-${GITHUB_REF:10}.zip CRMlite_Manager
-          cp CRMLite_Manager-${GITHUB_REF:10}.zip CRMlite_Manager
+          echo ::set-output name=path::$GITHUB_WORKSPACE/CRMLite-Manager
+          # Copia de archivos del repositorio a la carpeta CRMLite-Manager
+          cp -a $GITHUB_WORKSPACE/CRMliteManager $GITHUB_WORKSPACE/CRMLite-Manager/
+          cp -a $GITHUB_WORKSPACE/DB $GITHUB_WORKSPACE/CRMLite-Manager/
+          cp -a $GITHUB_WORKSPACE/BOT-WORKFLOW $GITHUB_WORKSPACE/CRMLite-Manager/
+
+          # Comprimimos la carpeta CRMLite-Manager en .zip
+          zip -9 -r CRMLite-Manager-${GITHUB_REF:10}.zip CRMLite-Manager
+          cp CRMLite-Manager-${GITHUB_REF:10}.zip CRMLite-Manager
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: CleverPack_${{ steps.build.outputs.version }}.zip
-          asset_name: CleverPack_${{ steps.build.outputs.version }}.zip
+          file: CRMLite-Manager${{ steps.build.outputs.version }}.zip
+          asset_name: CRMLite-Manager${{ steps.build.outputs.version }}.zip
           tag: ${{ github.ref }}
           overwrite: true

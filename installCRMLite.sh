@@ -1,4 +1,4 @@
-TOKEN="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"
+TOKEN="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"
 REPO="gmorales254/CRMLite-Manager"
 GITHUB="https://api.github.com"
 CRMLITEVERSION=`curl -sL -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3.raw" https://api.github.com/repos/$REPO/releases/latest | grep "tag_name" | cut -d : -f 2,3 | tr -d \" | tr -d , | tr -d " "`

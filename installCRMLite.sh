@@ -30,4 +30,3 @@ mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/DB/install.sql
 # Reportes
 cp /tmp/CRMLite-Manager/REPORTS/* /etc/IntegraServer/reports
 mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/REPORTS/install.sql'
-

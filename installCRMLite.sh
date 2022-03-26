@@ -28,5 +28,5 @@ cp -r /tmp/CRMLite-Manager/CRMLiteManager /etc/IntegraServer/web/forms
 cp -r /tmp/CRMLiteBUILD/CRMLite /etc/IntegraServer/web/forms
 mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/DB/install.sql'
 # Reportes
-cp -r /tmp/CRMLite-Manager/REPORTS/ /etc/IntegraServer/reports
+cp -r /tmp/CRMLite-Manager/REPORTS/* /etc/IntegraServer/reports
 mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/REPORTS/install.sql'

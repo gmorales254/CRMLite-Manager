@@ -1,0 +1,3 @@
+INSERT INTO ccdata.reports (name, file, description, DSN, parameters, grouped, language, license, visible)
+VALUES ('CRMLite - Management and Customer information detail', 'CRMLiteManagementCustomerDetail.jrxml', '', 'Repo', 'INITIAL_DATE:Timestamp;FINAL_DATE:Timestamp;QUEUE:Queue;', 'CRMLite', 'en', 'CCS', 1),
+('CRMLite - Detalle de gestiones y clientes', 'CRMLiteManagementCustomerDetail.jrxml', 'Gestiones realizadas sobre CRMLite e informacion de los clientes respectivos', 'Repo', 'INITIAL_DATE:Timestamp;FINAL_DATE:Timestamp;QUEUE:Queue;', 'CRMLite', 'es', 'CCS', 1);

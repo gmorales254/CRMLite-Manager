@@ -22,6 +22,7 @@ jobs:
           cp -a $GITHUB_WORKSPACE/CRMLiteManager $GITHUB_WORKSPACE/CRMLite-Manager/
           cp -a $GITHUB_WORKSPACE/DB $GITHUB_WORKSPACE/CRMLite-Manager/
           cp -a $GITHUB_WORKSPACE/BOT-WORKFLOW $GITHUB_WORKSPACE/CRMLite-Manager/
+          cp -a $GITHUB_WORKSPACE/REPORTS $GITHUB_WORKSPACE/CRMLite-Manager/
 
           # Comprimimos la carpeta CRMLite-Manager en .zip
           zip -9 -r CRMLite-Manager${GITHUB_REF:10}.zip CRMLite-Manager

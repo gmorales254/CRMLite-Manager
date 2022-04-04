@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS ccrepo.CRMLite_scripts (
 
 -- Dumping structure for table ccrepo.CRMLite_structure
 CREATE TABLE IF NOT EXISTS ccrepo.CRMLite_structure (
-  `fieldId` varchar(20) NOT NULL,
+  `fieldId` varchar(50) NOT NULL,
   `name` varchar(100) NOT NULL,
   `fieldType` set('text','number','select','boolean','checkbox','email','phone','timestamp','name') NOT NULL DEFAULT 'text',
   `fieldValue` text CHARACTER SET latin1 COMMENT 'Default value ',
@@ -131,6 +131,9 @@ CREATE TABLE IF NOT EXISTS ccrepo.CRMLite_structure (
   `required` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Can set the required field or not',
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `position` int(2) DEFAULT '0' COMMENT 'Field position 0 to ...',
+  `ringbatag` varchar(50) NULL DEFAULT '',
+  `optional` tinyint(1) DEFAULT '0',
+  `optCamps` JSON NULL,
   PRIMARY KEY (`fieldId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 MAX_ROWS=20 COMMENT='Structure for CRMLite v2';
 

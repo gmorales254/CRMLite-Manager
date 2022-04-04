@@ -8,6 +8,6 @@ SET NEW.fieldId = REPLACE(TRIM(NEW.fieldId), " ", "");
 END//
 DELIMITER ;
 
-ALTER TABLE `CRMLite_structure` ADD COLUMN `optional` TINYINT DEFAULT '1' AFTER `ringbatag`;
+ALTER TABLE `CRMLite_structure` ADD COLUMN `optional` TINYINT DEFAULT '0' AFTER `ringbatag`;
 
 ALTER TABLE `CRMLite_structure` ADD COLUMN `optCamps` JSON NULL COMMENT 'Optional campaigns selected, this will works if the optional field is true' AFTER `optional`;

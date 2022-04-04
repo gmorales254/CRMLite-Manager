@@ -182,7 +182,7 @@
                     }
                 });
             let queues = cgr.campaignsSelected.map(item=> `'${item}'`).join(", ");
-            query += `SELECT DATE_FORMAT(mng.date, "%Y-%m-%d %H-%i-%s") as "Fecha gestion", crm.id, crm.name as "Nombre", crm.phone as "Telefono", crm.email as "Email", ${jsonQuery}, crm.agent as "Agente creador", DATE_FORMAT(crm.created, "%Y-%m-%d %H-%i-%s") as "Fecha creado", DATE_FORMAT(crm.updated, "%Y-%m-%d %H-%i-%s") as "Ultima actualizacion",
+            query += `SELECT DATE_FORMAT(mng.date, "%Y-%m-%d %H:%i:%s") as "Fecha gestion", crm.id, crm.name as "Nombre", crm.phone as "Telefono", crm.email as "Email", ${jsonQuery}, crm.agent as "Agente creador", DATE_FORMAT(crm.created, "%Y-%m-%d %H:%i:%s") as "Fecha creado", DATE_FORMAT(crm.updated, "%Y-%m-%d %H:%i:%s") as "Ultima actualizacion",
             mng.queuename as "Cola", mng.agent as "agente_gestionador", mng.lvl1 as "Nivel 1", mng.lvl2 as "Nivel 2", mng.lvl3 as "Nivel 3", mng.note as "Nota", mng.channel as "Canal", mng.callid as "Identificado como" ` //headers
             query += `FROM CRMLite_customersV2 as crm ` // Tabla
             query += `LEFT JOIN CRMLite_management mng ON crm.id = mng.id_customer ` // Left join

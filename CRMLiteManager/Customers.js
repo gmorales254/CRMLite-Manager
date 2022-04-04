@@ -403,7 +403,7 @@ async function uploadNewCustomers(result) {
 				if (item.fieldId !== "phone" && item.fieldId !== "name" && item.fieldId !== "email" && element[item.fieldId]) {
 
 					let elementVal = element[item.fieldId].replace(/[*+?^/ /{}()\-|[\]\\]/g, '');
-					objTemp[item.fieldId] = elementVal ? elementVal : "";
+					objTemp[item.fieldId.trim()] = elementVal ? elementVal : "";
 
 				}
 			});

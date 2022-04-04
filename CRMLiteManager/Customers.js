@@ -1,6 +1,5 @@
 //# sourceURL=Customers.js
-import { paginate, array_move } from './Pagination.js';
-import fieldsAvailable from './env.js';
+import { paginate } from './Pagination.js';
 
 //Variables ---------------
 

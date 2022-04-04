@@ -1,154 +1,20 @@
-<style>
-	.container__primary {
-		background-color: rgba(0, 0, 0, 0.4);
-		max-width: 1000px;
-	}
+<!-- 
+SECCION DE CSS PARA COMPONENTS 
+-->
+<link rel="stylesheet" href="./CRMLiteManager.css">
+<link rel="stylesheet" href="./GeneralSettings.css">
+<link rel="stylesheet" href="./Customers.css">
+<link rel="stylesheet" href="./BotDesigner.css">
+<link rel="stylesheet" href="./ScriptDesigner.css">
 
-	.sections {
-		color: white;
-	}
 
-	.columna {
-		display: flex;
-		flex-direction: column;
-	}
-
-	
-	.fila {
-		
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-	}
-
-	/* NAV SECTION */
-
-	#tabs .tab {
-		display: inline-block;
-		padding: 5px 10px;
-		cursor: pointer;
-		position: relative;
-		z-index: 5;
-		color: grey;
-	}
-
-	#tabs .whiteborder {
-		border: 1px solid #707070;
-		border-bottom: 1px solid #fff;
-		border-radius: 3px 3px 0 0;
-		color: white;
-	}
-
-	#tabs .tabContent {
-		position: relative;
-		top: -1px;
-		z-index: 1;
-		padding: 10px;
-		border-radius: 0 0 3px 3px
-	}
-
-	#tabs .hide {
-		display: none;
-	}
-
-	#tabs .show {
-		display: block;
-	}
-
-	.tab-content {
-		overflow: auto;
-	}
-
-	
-	/* Script designer */
-
-	.script__textarea {
-		width: 100%;
-		max-width: 80%;
-		max-heigth: 240px;
-		margin: 10px;
-		resize: auto;
-		color: black;
-		height: 200px;
-	}
-
-	.script__container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	#txtScript {
-		width: 100%;
-		max-width: 800px;
-	}
-
-	/* Script designer */
-	/* Drag and drop fields */
-
-	.container_sort {
-		margin: 20px auto 0;
-		max-width: 500px;
-		word-wrap: break-word;
-	}
-
-	container_sort>* {
-		box-sizing: border-box;
-	}
-
-	.ul_drag_sort_fields {
-		margin: 0;
-		padding: 0;
-	}
-
-	.li_drag_sort_fields {
-		margin: 5px 0;
-		padding: 0 20px;
-		height: 40px;
-		line-height: 40px;
-		border-radius: 3px;
-		background: #136a8a;
-		background: -webkit-linear-gradient(to right, #267871, #136a8a);
-		background: linear-gradient(to right, #267871, #136a8a);
-		color: #fff;
-		list-style: none;
-	}
-
-	li.drag-sort-active {
-		background: transparent;
-		color: transparent;
-		border: 1px solid #4ca1af;
-	}
-
-	span.drag-sort-active {
-		background: transparent;
-		color: transparent;
-	}
-
-	/* Drag and drop fields */
-	/* BOT Designer */
-
-	.botdesigner_section>.input-group {
-		margin-bottom: 10px;
-	}
-
-	.botdesigner__questioninbutton {
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		overflow: hidden;
-	}
-
-	.botdesigner_questionconfig {
-		border: solid;
-		border-color: rgba(0, 0, 0, 0.2);
-	}
-
-	
-	/* BOT DESIGNER */
-</style>
-
+<!-- 
+SECCION DE CSS PARA COMPONENTS FIN 
+-->
+<script type="text/javascript" src="../../uContact/assets/js/vendor/vue/vue.min.js"></script>
 <script src="./chart.js"></script>
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <div class="container__primary">
 
@@ -188,7 +54,7 @@
 										<span>Customer information</span>
 										<div style="float: right;">
 											<button id="btnApplyFilter" disabled="" type="button" class=" btn"
-												style="line-height: 26px; background-color: #7367f0 !important; color: white;"
+												style="line-height: 26px; background-color: #7367f0 !important; color: white; display: none;"
 												aria-label=""><i class="fa fa-filter"></i></button>
 											<button id="btnRefreshTableCustomers" type="button" class="btn-success btn"
 												style="line-height: 26px;" aria-label=""><i
@@ -220,15 +86,14 @@
 
 						<div class="footer customers_footer">
 							<div id="customers_table_pagination"></div>
-							<div id="customers_table_downloadButtons">
-								<button type="button" id="btnDownloadReport" class="btn btn-info">Download
-									report</button>
-							</div>
+							
 
 						</div>
 						<!-- 
               !TABLA CUSTOMERS
             -->
+						<div id="customers_generateReport"></div>
+						
 						<div class="customers_uploadbase_section columna">
 							<h4>Customers bulk upload</h4>
 							<div class="drop-zone">
@@ -442,6 +307,7 @@
 	<!-- NO BORRAR / DO NOT DELETE -->
 
 	<div id="scripts"></div>
+	<div id="vue-customers"></div>
 	<script type="text/javascript">
 		if (typeof modo === 'undefined') {
 			document.open();
@@ -458,6 +324,7 @@
 				cache: true
 			});
 			$("#scripts").load("config.html");
+			$("#vue-customers").load("vue-customers.html");
 		}
 	</script>
 

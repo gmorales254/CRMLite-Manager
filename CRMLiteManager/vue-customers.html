@@ -1,0 +1,216 @@
+<script>
+
+    Vue.component("vCalendar",{
+                data(){
+                    return{
+                        dateSelected: ""
+                }
+            },
+                props:{
+                    label: String,
+                    disabledOn: String
+                },
+                methods:{
+                    dateUpdate(){
+                        if(this.dateSelected) this.$emit('dateselected', this.dateSelected);
+                    }
+                },
+                template: `
+                <div class="inputs fvalidation__inputs">
+                    <span class="label">{{label}}</span>
+					<div>
+						<input v-model="dateSelected"  :disable="disabledOn == 'true'" v-on:change="dateUpdate" 
+                        class="combobox-ui" type="datetime-local" 
+                        :placeholder="label" :title="label"> </input>
+					</div>
+				</div>
+
+                `
+            });
+
+     Vue.component("vDropdown",{
+                data(){
+                    return{
+                        selectedValues: []
+                    }
+                },
+                props:{
+                    label: String,
+                    data: Array,
+                    size: String,
+                    multipleOn: String,
+                    disabledOn: String
+                },
+                methods:{
+                    selectVals(){
+                        this.$emit('select', this.selectedValues)
+                    }
+                },
+                template: `
+                <div class="inputs fvalidation__inputs">
+                    <span class="label">{{label}}</span>
+					<div>
+						<select v-model="selectedValues" v-on:change="selectVals" class="combobox-ui" :title="label" :size="size" :disable="disabledOn == 'true'" :multiple="multipleOn == 'true'">
+                            <option v-for="(item, i) in data" :key="i" :value="item" >{{item}}</option>
+                        </select>
+					</div>
+				</div>
+                `
+            });
+
+
+      let cgr = new Vue({
+            el: "#customers_generateReport",
+               data(){
+                return{
+                    show: false,
+                    campaigns: [],
+                    campaignsSelected: [""],
+                    channels: ["telephony", "email", "sms", "webchat", "messenger"],
+                    channelSelected: "telephony",
+                    initialDate: "",
+                    finalDate: "",
+                    results: 0,
+                    loading: false
+                }
+               },
+               computed:{
+                   showit(){
+                       return this.show ? "Hide" : "Show"
+                   }
+               },
+               methods:{
+                   async askForRows(){
+                    if(!!this.initialDate && !!this.finalDate && !!this.campaignsSelected && !!this.channelSelected){
+
+                        camps = this.campaignsSelected.map(item=> `'${item}'`).join(", ");
+                            let respi = JSON.parse(await UC_get_async(
+                            `SELECT  COUNT(*) as "total"
+                            FROM CRMLite_customersV2 crm
+                            LEFT JOIN CRMLite_management mng
+                            ON crm.id = mng.id_customer
+                            WHERE mng.queuename IN (${camps})
+                            AND channel = "${this.channelSelected}"
+                            AND mng.date >= '${this.initialDate}' AND mng.date <= '${this.finalDate}'   
+                            `, ''));
+                            if(respi.length){
+                                this.results = Number(respi[0].total);
+                            }else{
+                                this.results = 0;
+                            }
+                    }
+                   },
+                   async campaingsHasBeenSelected(camps = ""){
+                       this.campaignsSelected = camps;
+                       await this.askForRows()
+                    },
+                    async initialDateHasBeenSelected(date = ""){
+                        this.initialDate = moment(date).format('yyyy-MM-DD 00:00:00');
+                        await this.askForRows()
+                    },
+                    async finalDateHasBeenSelected(date = ""){
+                        this.finalDate = moment(date).format('yyyy-MM-DD 23:59:59');
+                        await this.askForRows()
+                    },
+                    async channelHasBeenChanged(channel){
+                        this.channelSelected = channel;
+                        let resp = null;
+                        try{
+                            this.loading = true;
+                            if(channel == "telephony") {
+                            resp = JSON.parse(await UC_get_async(`SELECT name FROM ccdata.queues group by name`, ''));
+                            }else{
+                                resp = JSON.parse(await UC_get_async(`SELECT name FROM ccdata.${channel}_members group by name`, ''));
+                            }
+                        }catch(e){
+                            this.campaigns = [];
+                            this.loading = false;
+                        }
+
+                        if(resp.length){
+                            this.campaigns = resp.map(item=> item.name);
+                        }else{
+                            this.campaigns = [];
+                        }
+                        this.loading = false;
+                        await this.askForRows()
+                     }, 
+                     async downloadReport(){
+                        await doReport()
+                     }
+
+
+               }
+               ,
+                template: `
+                <div style="display: flex;flex-wrap: nowrap;flex-direction: column;align-content: center;margin-top:10px;" >
+                    <button class="btn btn-secundary" style="color:black;" v-on:click="show = !show" type="button" data-toggle="collapse" data-target="#collapseReportSection" aria-expanded="false">
+                            {{showit}} Report Section 
+                    </button>
+                    <div class="customers_uploadbase_section columna">
+                        <div class="collapse" id="collapseReportSection">
+                            <div class="card card-body">
+                                <vCalendar label="Initial date" :disabledOn="loading" v-on:dateselected="initialDateHasBeenSelected" ></vCalendar>
+                                <vCalendar label="Final date" :disabledOn="loading" v-on:dateselected="finalDateHasBeenSelected" ></vCalendar>
+                                <vDropdown label="Channel" :disabledOn="loading" :data="channels" :size="0" v-on:select="channelHasBeenChanged" multipleOn="false"></vDropdown>
+                                <vDropdown label="Select campaigns" :disabledOn="loading" :data="campaigns" :size="8" v-on:select="campaingsHasBeenSelected" multipleOn="true"></vDropdown>
+                                <button id="btnDownloadReport" v-on:click="doReport" style="margin-top:5px;" class="btn btn-success" :disabled="results == 0 || loading">Generate report ({{results}}) 
+                                    <i v-if="loading" class="fa fa-spinner fa-pulse fa-fw margin-bottom" style="font-size: 18px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+            });
+
+            async function doReport(){
+            cgr.loading = true;
+            let headers = [];
+            headers = JSON.parse(await UC_get_async("SELECT fieldId, fieldType FROM CRMLite_structure ORDER BY position", "Repo"));
+	        if (!headers) {
+                return { error: "nothing to load" }
+                cgr.loading = false;
+            }
+            let query = "";
+            let headerIndexEnd = headers.length - 1; //para saber el numero del ultimo indice.
+            let jsonQuery = "";
+                headers.map((item, indx) => {
+                    if(item.fieldId != "phone" && item.fieldId != "email" && item.fieldId != "name"){
+                        jsonQuery += `information->>"$.${item.fieldId}" as "${item.fieldId}"`;
+                    jsonQuery += headerIndexEnd == indx ? '' : ','; //si no sos el ultimo, te pongo coma.
+                    }
+                });
+            let queues = cgr.campaignsSelected.map(item=> `'${item}'`).join(", ");
+            query += `SELECT DATE_FORMAT(mng.date, "%Y-%m-%d %H-%i-%s") as "Fecha gestion", crm.id, crm.name as "Nombre", crm.phone as "Telefono", crm.email as "Email", ${jsonQuery}, crm.agent as "Agente creador", DATE_FORMAT(crm.created, "%Y-%m-%d %H-%i-%s") as "Fecha creado", DATE_FORMAT(crm.updated, "%Y-%m-%d %H-%i-%s") as "Ultima actualizacion",
+            mng.queuename as "Cola", mng.agent as "agente_gestionador", mng.lvl1 as "Nivel 1", mng.lvl2 as "Nivel 2", mng.lvl3 as "Nivel 3", mng.note as "Nota", mng.channel as "Canal", mng.callid as "Identificado como" ` //headers
+            query += `FROM CRMLite_customersV2 as crm ` // Tabla
+            query += `LEFT JOIN CRMLite_management mng ON crm.id = mng.id_customer ` // Left join
+            query += `WHERE 1 = 1 AND `
+            query += `mng.queuename IN (${queues})
+            AND mng.date >= '${cgr.initialDate} 00:00:00' AND mng.date <= '${cgr.finalDate} 23:59:59'
+            ORDER BY mng.date DESC`;
+
+            const items =  JSON.parse(await UC_get_async(query, "Repo"));
+            const replacer = (key, value) => value === null || value == "" ? "" : value //.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '') // specify how you want to handle null values here
+            const header = Object.keys(items[0])
+            debugger;
+            const csv = ["data:text/csv;charset=utf-8," +
+            header.join(','), // header row first
+            ...items.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
+            ].join('\r\n');
+
+                //Aqui lo convierte a CSV y lo descarga
+                //let csvContent = "data:text/csv;charset=utf-8," + arrReport.map((e, i, a) => a[i].join(",")).join("\n");
+
+                let encodedUri = encodeURI(csv);
+                let link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "customers_report.csv");
+                document.body.appendChild(link); // Required for FF
+                link.click(); // Va a descargar el archivo que contiene los ejemplos de los campos "customers_report.csv". 
+                cgr.loading = false;
+            }
+
+    
+</script>

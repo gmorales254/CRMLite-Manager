@@ -6,20 +6,10 @@ import fieldsAvailable from './env.js';
 
 var arrHeaders = [];
 var arrItems = [];
-var filters =
-	{
-		dinamicFields: [{ name: "phone", val: '' }, { name: "email", val: '' }, { name: "name", val: "" }],
-		dbFields:
-		{
-			active: "" /*"true" / "false" / "both"*/
-			//agent: ""
-			//created: { value1: "", operator: "", value2: "" }, //investigacion
-			//updated: { value1: "", operator: "", value2: "" }, //investigacion
-			//id: { value1: "", operator: "", value2: "" }
-		}
-	};
+
 
 //--------------- Variables
+
 
 // Customer table --------
 export async function loadInformation(filter = false) {
@@ -44,24 +34,6 @@ export async function loadInformation(filter = false) {
 
 	arrHeaders = headers;
 	arrItems = content;
-	// FILTROS ----->
-
-	if (filter) {
-
-		filters.dinamicFields.map((item) => {
-			if (item.val) {
-				arrItems = arrItems.filter(element => element[item.name] == item.val);
-			}
-		});
-
-		let status = filters.dbFields.active;
-		let agent = filters.dbFields.agent;
-
-		if (status && status != "both") arrItems = arrItems.filter(element => element['active'] == status);
-
-	}
-
-	// <----- FILTROS
 
 	objInfo.arrHeaders = headers;
 	objInfo.arrItems = content;
@@ -223,7 +195,7 @@ function updateThumbnail(dropZoneElement, file) {
 }
 
 
-let btn_upload = document.getElementById('btnUploadBase').addEventListener('click', async () => {
+document.getElementById('btnUploadBase').addEventListener('click', async () => {
 
 	let dialerSelected = "";
 	let dialerList = await UC_get_async('SELECT campaign FROM ccdata.dialer', '');
@@ -437,7 +409,7 @@ async function uploadNewCustomers(result) {
 			});
 			let phone = element.phone.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
 			let name = element.name.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
-			let email = element.email.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+			let email = element.email.replace(/[*+?^/ /${}()\|[\]\\]/g, '');
 			email = email == undefined ? '' : email;
 			name = name == undefined ? '' : name; 
 
@@ -531,6 +503,8 @@ document.getElementById('btnDownloadExample').addEventListener('click', async ()
 
 })
 
+
+
 async function downloadExample() {
 	let arrExamples = [];
 	let fields
@@ -585,63 +559,6 @@ async function downloadExample() {
 
 // <------- upload base ---------------
 
-// --------- Download report --------->
-document.getElementById('btnDownloadReport').addEventListener('click', async () => {
-	await downloadReport();
-});
-
-async function downloadReport() {
-
-	parent.loaderSetVisible(true);
-	let arrReport = [];
-
-	//-- HEADERS -->
-	let arrReportHead = []
-
-	arrReportHead.push('id');
-	arrHeaders.map((header) => {
-		arrReportHead.push(header.fieldId);
-	});
-
-	arrReportHead.push('active', 'agent', 'created', 'updated');
-	arrReport.push(arrReportHead); //seteo el header
-
-	//<-- HEADERS --
-
-	arrItems.map((item) => { //genero el array que contiene todo el contenido del reporte
-
-		let contentTemp = [];
-		contentTemp.push(item['id']);
-
-		arrHeaders.map((header) => {
-			let itemName = item[header.fieldId];
-			contentTemp.push(itemName ? itemName.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '') : "");
-		});
-
-		contentTemp.push(item['active']);
-		contentTemp.push(item['agent']);
-		contentTemp.push(moment(item['created']).format('YYYY-MM-DD HH:mm:ss'));
-		contentTemp.push(moment(item['updated']).format('YYYY-MM-DD HH:mm:ss'));
-
-		arrReport.push(contentTemp);
-
-	});
-
-	let csvContent = "data:text/csv;charset=utf-8," + arrReport.map((e, i, a) => a[i].join(",")).join("\n");
-
-	let encodedUri = encodeURI(csvContent);
-	let link = document.createElement("a");
-	link.setAttribute("href", encodedUri);
-	link.setAttribute("download", "customers_report.csv");
-	document.body.appendChild(link); // Required for FF
-	link.click(); // Va a descargar el archivo que contiene los ejemplos de los campos "customers_report.csv". 
-
-	parent.loaderSetVisible(false);
-
-}
-
-// <-------- Download report ----------
-
 
 // --------- table options ------------
 
@@ -688,85 +605,6 @@ document.getElementById('btnDeleteCustomers').addEventListener('click', async ()
 });
 
 // <-------- table options -----------
-
-
-// -------- Filtering ---------------->
-
-document.getElementById('btnApplyFilter').addEventListener('click', async () => {
-
-	/*	
-		let arrAgents = [];
-		let arrAgentsHTML = "";
-	
-		arrItems.map((item) => {
-				let agent = filters.dbFields.agent;
-				arrAgents.push(agent);
-		
-		});
-	
-	arrAgents = new Set(arrayAgents);
-	arrAgents.map(element=> arrAgentsHTML += `<option ${agentfiltered === item ? "selected" : ""} value="${item.agent}">${item.agent}</option>`)*/
-
-	let phoneFilter = filters.dinamicFields.filter((element) => element.name === "phone");
-	let emailFilter = filters.dinamicFields.filter((element) => element.name === "email");
-	let nameFilter = filters.dinamicFields.filter((element) => element.name === "name");
-
-	let statusHTML = "";
-	["both", "true", "false"].map((status) => statusHTML += `<option  value="${status}" ${status === filters.dbFields.active ? "selected" : ""}>${status}</option>`)
-
-	const { value: formValues } = await Swal.fire({
-		title: `Apply a filter`,
-		html:
-		`
-	  <input type="text" id="inpFilterPhone" class="swal2-input" style="width:220px;" placeholder="Filter by Phone" value="${phoneFilter.val}"/>
-      <input type="text" id="inpFilterEmail" class="swal2-input" style="width:220px;" placeholder="Filter by Email" value="${emailFilter.val}"/>
-      <input type="text" id="inpFilterName" class="swal2-input" style="width:220px;" placeholder="Filter by Name" value="${nameFilter.val}"/>
-
-      <select id="cmbFilterStatus" class="swal2-input" style="width:220px;">
-            <option disabled value>Filter by status</option>
-			${statusHTML}
-      </select>
-
-	<!--  <select id="cmbFilterAgent" class="swal2-input" style="width:220px;">
-            <option value="all">All</option>
-            
-      </select> -->
-      
-      `,
-		showCloseButton: true,
-		showCancelButton: true,
-		focusConfirm: true,
-		confirmButtonText:
-		'Apply',
-		preConfirm: async () => {
-			let statusSelected = document.getElementById('cmbFilterStatus').value;
-			//let agentSelected = document.getElementById('cmbFilterAgent').value;
-			let phone = document.getElementById('inpFilterPhone').value;
-			let email = document.getElementById('inpFilterEmail').value;
-			let name = document.getElementById('inpFilterName').value;
-
-			let dinamicFields = [{ name: "phone", val: phone }, { name: "email", val: email }, { name: "name", val: name }];
-
-			filters = {
-				dinamicFields: dinamicFields,
-				dbFields:
-				{
-					active: statusSelected,
-					//agent: agentSelected ? agentSelected : "all"
-				}
-
-			};
-
-
-			await loadInformation(true);
-		}
-
-	});
-});
-
-// <------ Filtering ------------------
-
-
 
 // <---------- Customer table ---------
 

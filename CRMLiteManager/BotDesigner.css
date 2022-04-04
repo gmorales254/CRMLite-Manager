@@ -362,3 +362,23 @@
     width: 95%;
   }
 }
+
+	/* BOT Designer */
+
+	.botdesigner_section>.input-group {
+		margin-bottom: 10px;
+	}
+
+	.botdesigner__questioninbutton {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	.botdesigner_questionconfig {
+		border: solid;
+		border-color: rgba(0, 0, 0, 0.2);
+	}
+
+	
+	/* BOT DESIGNER */

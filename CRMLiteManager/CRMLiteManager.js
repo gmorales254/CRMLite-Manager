@@ -25,7 +25,6 @@ document.getElementById('tabs').onclick = function (event) {
 
     if (event.target.className == 'tab') {
         for (let i = 0; i < tab.length; i++) {
-            console.log(`target: ${event.target} / ${tab[i]}`)
             if (event.target == tab[i]) {
                 showTabsContent(i);
                 break;

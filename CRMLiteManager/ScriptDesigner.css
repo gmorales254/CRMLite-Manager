@@ -1,0 +1,24 @@
+	/* Script designer */
+
+	.script__textarea {
+		width: 100%;
+		max-width: 80%;
+		max-heigth: 240px;
+		margin: 10px;
+		resize: auto;
+		color: black;
+		height: 200px;
+	}
+
+	.script__container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	#txtScript {
+		width: 100%;
+		max-width: 800px;
+	}
+
+	/* Script designer */

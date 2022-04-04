@@ -240,6 +240,7 @@ document.getElementById('btnUploadBase').addEventListener('click', async () => {
 
 		if (!dialeropt) {
 			return; //cancelo subida por falta de marcador.
+			parent.loaderSetVisible(false);
 		} else {
 			dialerSelected = dialeropt;
 		}
@@ -402,7 +403,7 @@ async function uploadNewCustomers(result) {
 			arrHeaders.map((item) => {
 				if (item.fieldId !== "phone" && item.fieldId !== "name" && item.fieldId !== "email" && element[item.fieldId]) {
 
-					let elementVal = element[item.fieldId].replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+					let elementVal = element[item.fieldId].replace(/[*+?^/ /{}()\-|[\]\\]/g, '');
 					objTemp[item.fieldId] = elementVal ? elementVal : "";
 
 				}
@@ -455,13 +456,13 @@ async function UC_BulkUploadFromArrObj(arrObj = [{}], table = "", dsn = "ccrepo"
 
 
 	queryExec += `${headers} VALUES ${Values}` //EJEMPLO: (exp1, exp2, exp3) VALUES ('1', '2', '3'), ('1', '2', '3')
-	queryExec = queryExec.replace(/.$/, ' ON DUPLICATE KEY UPDATE information = information;'); // Reemplazo el último caracter por "ON DUPLICATE KEY UPDATE;"
+	queryExec = queryExec.replace(/.$/, ' as a ON DUPLICATE KEY UPDATE information = a.information;'); // Reemplazo el último caracter por "ON DUPLICATE KEY UPDATE;"
 
 	let resp = await UC_exec_async(queryExec, '');
 	return resp;
 }
 
-function validarResultados(archivo) {
+/*function validarResultados(archivo) {
 	Papa.parse(archivo, {
 		complete: function (results, file) {
 			let csv = results.data;
@@ -473,10 +474,10 @@ function validarResultados(archivo) {
 	});
 
 
-}
+}*/
 
 
-function arrayObjToCsv(ar) {
+/*function arrayObjToCsv(ar) {
 	//comprobamos compatibilidad
 	if (window.Blob && (window.URL || window.webkitURL)) {
 		let contenido = "", blob;
@@ -495,7 +496,7 @@ function arrayObjToCsv(ar) {
 		//el navegador no admite esta opción
 		alert("Su navegador no permite esta acción.");
 	}
-};
+};*/
 
 
 document.getElementById('btnDownloadExample').addEventListener('click', async () => {

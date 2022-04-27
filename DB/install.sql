@@ -57,6 +57,8 @@ CREATE TABLE IF NOT EXISTS ccrepo.CRMLite_customersV2 (
   `agent` varchar(100) NOT NULL DEFAULT '' COMMENT 'name of the agent who creates this registy',
   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create datetime',
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'last update',
+	`promise` MEDIUMTEXT NULL DEFAULT NULL COMMENT 'LOAN FIELD' COLLATE 'utf8_general_ci',
+	`schedule_promise` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'LOAN FIELD',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `phone` (`phone`),
   KEY `indx_id` (`id`) USING BTREE,

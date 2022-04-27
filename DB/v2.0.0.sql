@@ -76,3 +76,5 @@ INSERT INTO CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `inform
 VALUES (NEW.id, NEW.name, NEW.phone, NEW.email, NEW.information, NEW.files, NEW.active, NEW.agent, 'UPDATED', NEW.promise, NEW.schedule_promise)//
 DELIMITER ;
 
+ALTER TABLE ccrepo.CRMLite_customersV2 ADD COLUMN `promise` MEDIUMTEXT NULL AFTER `updated`;
+ALTER TABLE ccrepo.CRMLite_customersV2 ADD COLUMN `schedule_promise` TIMESTAMP NULL DEFAULT NULL AFTER `promise`;

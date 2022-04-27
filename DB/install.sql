@@ -269,3 +269,44 @@ CREATE TRIGGER `CRMLite_customersV2_history_update_customer` AFTER UPDATE ON `CR
 INSERT INTO CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `information`, `files`, `active`, `agent`, `action_history`, `promise`, `schedule_promise`)
 VALUES (NEW.id, NEW.name, NEW.phone, NEW.email, NEW.information, NEW.files, NEW.active, NEW.agent, 'UPDATED', NEW.promise, NEW.schedule_promise)//
 DELIMITER ;
+
+-- BLACKLIST SCHEDULE-- Dumping structure for procedure ccdata.blacklist_schedule_procedure
+DELIMITER //
+CREATE PROCEDURE ccdata.`blacklist_schedule_procedure`(
+	IN `phone` VARCHAR(50),
+	IN `campaign` VARCHAR(50),
+	IN `username` VARCHAR(50),
+	IN `schedule` TIMESTAMP
+)
+BEGIN
+
+INSERT IGNORE INTO ccdata.black_list (phone, campaign, username) VALUES (phone, campaign, username);
+DELETE FROM ccdata.calls_spool WHERE destination LIKE CONCAT('%',phone,'%') OR (alternatives <> '' AND (alternatives like CONCAT('%',phone,'%') OR alternatives like CONCAT('%',phone,'%')));
+DELETE FROM ccdata.calls_scheduler WHERE destination LIKE CONCAT('%',phone,'%') OR (alternatives <> '' AND (alternatives like CONCAT('%',phone,'%') OR alternatives like CONCAT('%',phone,'%')));
+
+IF schedule != "" AND schedule IS NOT NULL THEN
+INSERT IGNORE INTO ccdata.black_list_schedule (phone, removedate) VALUES (phone, schedule) ON DUPLICATE KEY UPDATE removedate = VALUES(removedate);
+END IF;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure ccdata.blacklist_schedule_procedure_deletefrom
+DELIMITER //
+CREATE PROCEDURE ccdata.`blacklist_schedule_procedure_deletefrom`(
+	IN `callerid` VARCHAR(50)
+)
+    COMMENT 'Delete statements for tables black_list and black_list_schedule'
+BEGIN
+DELETE FROM ccdata.black_list WHERE phone = callerid;
+DELETE FROM ccdata.black_list_schedule WHERE phone = callerid;
+UPDATE ccrepo.CRMLite_customersV2 SET promise = "", schedule_promise = null WHERE phone = callerid;
+END//
+DELIMITER ;
+
+-- Dumping structure for table ccdata.black_list_schedule
+CREATE TABLE IF NOT EXISTS ccdata.`black_list_schedule` (
+  `phone` varchar(20) DEFAULT NULL,
+  `removedate` timestamp NULL DEFAULT NULL,
+  UNIQUE KEY `Index 1` (`phone`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

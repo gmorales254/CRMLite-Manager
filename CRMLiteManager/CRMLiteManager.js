@@ -20,7 +20,6 @@ var tabContent = document.getElementsByClassName('tabContent');
 
 hideTabsContent(1);
 
-
 document.getElementById('tabs').onclick = function (event) {
 
     if (event.target.className == 'tab') {

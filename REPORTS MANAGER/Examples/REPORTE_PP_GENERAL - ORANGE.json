@@ -1,0 +1,12 @@
+[{"column": "", "alias": "AGENCIA", "from": "", "isJSON": "false", "JSONColumn": "", "isDateTime": "false", "isConst": "true", "constValue": "ORANGE", "isSQLstatement": "false"},
+{"column": "PLAN_PAGOS", "alias": "PLAN DE PAGOS", "from": "CRMLite_customersV2", "isJSON": "true", "JSONColumn": "information", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "SUC_SOCIO", "alias": "SUC SOCIO", "from": "CRMLite_customersV2", "isJSON": "true", "JSONColumn": "information", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "name", "alias": "NOMBRE", "from": "CRMLite_customersV2", "isJSON": "false", "JSONColumn": "", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "QUITA_CAPITAL", "alias": "QUITA CAPITAL", "from": "CRMLite_customersV2", "isJSON": "true", "JSONColumn": "information", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "DESCUENTO", "alias": "DESCUENTO", "from": "CRMLite_customersV2", "isJSON": "true", "JSONColumn": "information", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "promise", "alias": "MONTO PROMESA", "from": "CRMLite_customersV2", "isJSON": "false", "JSONColumn": "", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "GESTION", "alias": "GESTION", "from": "CRMLite_customersV2", "isJSON": "true", "JSONColumn": "information", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "schedule_promise", "alias": "FECHA PROMESA", "from": "CRMLite_customersV2", "isJSON": "false", "JSONColumn": "", "isDateTime": "true", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "agent", "alias": "AGENTE", "from": "CRMLite_management", "isJSON": "false", "JSONColumn": "", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "phone", "alias": "TELEFONO", "from": "CRMLite_customersV2", "isJSON": "false", "JSONColumn": "", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"},
+{"column": "SALDOS", "alias": "SALDOS", "from": "CRMLite_customersV2", "isJSON": "true", "JSONColumn": "information", "isDateTime": "false", "isConst": "false", "constValue":"", "isSQLstatement": "false"}]

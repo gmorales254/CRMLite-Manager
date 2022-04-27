@@ -90,11 +90,9 @@ SECCION DE CSS PARA COMPONENTS FIN
 
 						</div>
 						<!-- 
+
               !TABLA CUSTOMERS
-            -->
-						<div id="customers_generateReport"></div>
-						
-						<div class="customers_uploadbase_section columna">
+            -->			<div class="customers_uploadbase_section columna">
 							<h4>Customers bulk upload</h4>
 							<div class="drop-zone">
 								<span class="drop-zone__prompt"></span>
@@ -104,12 +102,74 @@ SECCION DE CSS PARA COMPONENTS FIN
 								style="margin-bottom: 15px;">Upload base</button>
 							<button type="button" id="btnDownloadExample" class="btn btn-info">Download example</button>
 						</div>
+						<div id="customers_generateReport"></div>
+						<div id="customers_generateReport_advanced" class="card card-body customers_uploadbase_section columna">
+							<div class="input-group">
+								
+								<div id="report_editor_select_section">
+									<span class="label fvalidation__inputs">Templates <i class="fa fa-spinner fa-pulse fa-fw margin-bottom" style="font-size: 18px; display:none;"></i></span>
+									<select id="cmbReportTemplate" class="combobox-ui form-control" style="color:black;"></select>
+									<div class="inputs fvalidation__inputs">
+										<span class="label">Create new report template</span>
+										<div>
+											<input id="txtNewTemplate" title="new template name" class="combobox-ui">
+										</div>
+									</div>
+									<button class="btn btn-success" id="btnNewTemplate">
+										Create and continue <i class="fa fa-spinner fa-pulse fa-fw margin-bottom" style="font-size: 18px; display:none;"></i>
+									</button>
+								</div>
+								
+								<div id="report_editor_section">
+									<h5 id="lblReportName"></h5>
+									<div class="inputs fvalidation__inputs">
+										<span class="label">Channel</span>
+										<div>
+											<select id="cmbReportChannel" class="combobox-ui" title="Channel">
+												<option selected disabled value="">Select a channel</option>
+												<option value="telephony">Telephony</option>
+												<option value="email">E-mail</option>
+												<option value="sms">SMS / WhatsApp</option>
+												<option value="messenger">Messenger Facebook</option>
+											</select>
+										</div>
+									</div>
+									<div class="inputs fvalidation__inputs">
+										<span class="label">Campaigns</span>
+										<div>
+											<select id="cmbReportCampaigns" class="combobox-ui" title="Campaigns" multiple size="8">
+											</select>
+										</div>
+									</div>
+									<div class="inputs fvalidation__inputs">
+										<span class="label">Until days</span>
+										<div>
+											<input id="txtUntilDays" title="Days left for today" class="combobox-ui">
+										</div>
+									</div>
+
+									<div class="inputs fvalidation__inputs">
+										<span class="label">E-mail destination</span>
+										<div>
+											<input id="txtDestinationEmail" title="Destination" class="combobox-ui">
+										</div>
+									</div>
+									
+									<button class="btn btn-success" id="btnReportNewColumn">New column</button>
+									<div id="sorteableColumns">
+										
+										<!-- Sorteable items -->
+									</div>
+									<button class="btn btn-success" id="btnSaveReport">Save report template</button>
+
+								</div>
+							</div>
+						</div>
+						
 
 					</div>
 				</div>
 			</div>
-
-
 
 			<div role="tabpanel" class="tabContent tab-pane fade sections active in hide" id="sectionSettings"
 				aria-labelledby="home-tab">

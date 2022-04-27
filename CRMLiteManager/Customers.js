@@ -3,6 +3,7 @@ import { paginate } from './Pagination.js';
 
 //Variables ---------------
 
+
 var arrHeaders = [];
 var arrItems = [];
 
@@ -11,10 +12,11 @@ var arrItems = [];
 
 
 // Customer table --------
-export async function loadInformation(filter = false) {
+export async function loadInformation() {
 	let objInfo = new Object;
 	let headers = [];
 	let content = [];
+
 
 	headers = JSON.parse(await UC_get_async("SELECT fieldId, fieldType FROM CRMLite_structure ORDER BY position", "Repo"));
 	if (!headers) return { error: "nothing to load" }
@@ -196,6 +198,7 @@ function updateThumbnail(dropZoneElement, file) {
 
 document.getElementById('btnUploadBase').addEventListener('click', async () => {
 
+
 	let dialerSelected = "";
 	let dialerList = await UC_get_async('SELECT campaign FROM ccdata.dialer', '');
 	dialerList = JSON.parse(dialerList);
@@ -238,8 +241,9 @@ document.getElementById('btnUploadBase').addEventListener('click', async () => {
 		})
 
 		if (!dialeropt) {
-			return; //cancelo subida por falta de marcador.
+			
 			parent.loaderSetVisible(false);
+			return; //cancelo subida por falta de marcador.
 		} else {
 			dialerSelected = dialeropt;
 		}
@@ -402,13 +406,13 @@ async function uploadNewCustomers(result) {
 			arrHeaders.map((item) => {
 				if (item.fieldId !== "phone" && item.fieldId !== "name" && item.fieldId !== "email" && element[item.fieldId]) {
 
-					let elementVal = element[item.fieldId].replace(/[*+?^/ /{}()\-|[\]\\]/g, '');
+					let elementVal = element[item.fieldId].replace(/[*+?^{}\-|[\]\\]/g, '');
 					objTemp[item.fieldId.trim()] = elementVal ? elementVal : "";
 
 				}
 			});
 			let phone = element.phone.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
-			let name = element.name.replace(/[.*+?^/ /${}()\-|[\]\\]/g, '');
+			let name = element.name.replace(/[.*+?^${}()\-|[\]\\]/g, '');
 			let email = element.email.replace(/[*+?^/ /${}()\|[\]\\]/g, '');
 			email = email == undefined ? '' : email;
 			name = name == undefined ? '' : name; 
@@ -461,41 +465,6 @@ async function UC_BulkUploadFromArrObj(arrObj = [{}], table = "", dsn = "ccrepo"
 	return resp;
 }
 
-/*function validarResultados(archivo) {
-	Papa.parse(archivo, {
-		complete: function (results, file) {
-			let csv = results.data;
-			archivo = arrayObjToCsv(csv);
-			let sentencia = "IGNORE 1 LINES (information, active, agent, created)";
-			UC_subirArchivoCSV(archivo, "CRMLite_customersV2", sentencia, console.log);
-		},
-		delimiter: ";"
-	});
-
-
-}*/
-
-
-/*function arrayObjToCsv(ar) {
-	//comprobamos compatibilidad
-	if (window.Blob && (window.URL || window.webkitURL)) {
-		let contenido = "", blob;
-		//creamos contenido del archivo
-		for (let i = 0; i < ar.length; i++) {
-			//resto del contenido
-			contenido += Object.keys(ar[i]).map(function (key) {
-				return ar[i][key];
-			}).join(";") + "\n";
-		}
-		//creamos el blob
-		blob = new Blob(["\ufeff", contenido], { type: 'text/csv' });
-		let csv_file = new File([blob], "basecsv", { type: 'text/csv' });
-		return csv_file;
-	} else {
-		//el navegador no admite esta opción
-		alert("Su navegador no permite esta acción.");
-	}
-};*/
 
 
 document.getElementById('btnDownloadExample').addEventListener('click', async () => {
@@ -609,10 +578,557 @@ document.getElementById('btnDeleteCustomers').addEventListener('click', async ()
 // <---------- Customer table ---------
 
 
+
+// ---------- Report Section -------->
+var columnStructure = [];
+var columnHTMLstructure = `
+<label for="cmbTypeOfColumn" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
+		   <span class="swal2-label">Alias *</span>
+</label>
+<input type="text" id="inpAlias" placeholder="Alias" class="swal2-input" style="width:220px;" >
+
+<label for="cmbTypeOfColumn" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
+  <span class="swal2-label">Column type</span>
+</label>
+<select id="cmbTypeOfColumn" class="swal2-input" style="width:220px;">
+	<option value="" disabled selected>Select a column type</option>
+	<option value="column" >Column</option>
+	<option value="constant">Constant</option>
+	<option value="jsonfields">Dynamic fields</option>
+</select>
+
+<select id="cmbFrom" class="swal2-input" style="width:220px;display:none;">
+	<option selected value="" disabled>Which table?</option>
+	<option value="CRMLite_customersV2">Customer information</option>
+	<option value="CRMLite_management">Managements</option>
+</select>
+<select id="cmbColumn" class="swal2-input" style="width:220px;display:none;"></select>
+<!-- IF IS JSON -->
+<select id="cmbJSONColumn" class="swal2-input" style="width:220px;display:none;"></select>
+<select id="cmbJSONField" class="swal2-input" style="width:220px;display:none;"></select>
+<input type="text" id="inpConstantValue" placeholder="Constant text" class="swal2-input" style="width:220px;display:none;" >
+
+<label for="chkIsDate" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
+  <span class="swal2-label">Is datetime?</span>
+</label>
+<input type="checkbox" id="chkIsDate" class="swal2-checkbox">
+`
+
+
+
+$("#sorteableColumns").sortable({
+    helper: "clone",
+    items: "> li[data-columnid]",
+    start: function (event, ui) {
+
+	},
+    stop: function (event, ui) {
+
+	},
+  });
+
+
+
+async function initReportAdvancedSection(){
+	document.getElementById('btnNewTemplate').disabled = true;
+	document.getElementById('report_editor_section').style.display = "none";
+	document.getElementById('report_editor_select_section').style.display = "";
+	document.getElementById('cmbReportTemplate').disabled = false;
+	document.getElementById('cmbReportTemplate').value = "";
+
+	columnStructure = [];
+	cleanReportTemplate();
+	let cmbReportTemplate = document.getElementById("cmbReportTemplate");
+
+	let resp = JSON.parse(await UC_get_async(`SELECT * FROM ccrepo.CRMLite_reports`));
+	if(resp.length){
+		 cmbReportTemplate.style.display = "";
+		 //cargo los datos recogidos:
+		 $(`#cmbReportTemplate`).empty();
+		 $(`#cmbReportTemplate`).trigger("chosen:updated");
+		 $(`#cmbReportTemplate`).prepend(
+			 `<option disabled selected value>Select a template</option>`
+		 );
+		 resp.map((item) => $(`#cmbReportTemplate`).append(new Option(item.title, item.title)));
+		 $(`#cmbReportTemplate`).trigger("chosen:updated");	 
+	}else{
+		cmbReportTemplate.style.display = "none";
+		$('#cmbReportTemplate').empty();
+	}
+
+}
+
+document.getElementById('cmbReportTemplate').addEventListener('change', async (e)=>{
+	e.target.disabled = true;
+	if(e.target.value){
+		let resp = JSON.parse(await UC_get_async(`SELECT * FROM ccrepo.CRMLite_reports WHERE title="${e.target.value}"`));
+		if(resp.length){
+			
+			await loadReportTemplate(resp[0]);
+		
+		}else{
+		notification('An error has been appear', "We can't load de information in this moment, try later.", "fa fa-error", "warning");
+		e.target.disabled = false;
+		return;
+		}
+	}else{
+		notification("Please select a correct option", "", "fa fa-info", "warning");
+		e.target.disabled = false;
+	}
+
+});
+
+document.getElementById('txtNewTemplate').addEventListener('input', (e)=>{
+	if(e.target.value) document.getElementById('btnNewTemplate').disabled = false;
+	else document.getElementById('btnNewTemplate').disabled = true;
+});
+
+document.getElementById('btnNewTemplate').addEventListener('click', async ()=>{
+	document.getElementById('report_editor_section').style.display = ""; //aparece el menu de edicion
+	document.getElementById('report_editor_select_section').style.display = "none"; //Oculto el main menu
+	document.getElementById('lblReportName').innerText = document.getElementById('txtNewTemplate').value; //Se le da el valor del txtNewTemplate
+	document.getElementById('cmbReportChannel').value = ""; //elimino el channel seleccionado por default
+	document.getElementById('cmbReportCampaigns').innerHTML = ""; //quito las campañas
+	columnStructure = []; //reinicio variable
+	document.getElementById('txtUntilDays').value = "1"; // Un dia por default
+	document.getElementById('txtDestinationEmail').value = ""; // primer posicion hardcodeada por ahora
+	document.getElementById('sorteableColumns').innerHTML=""; //elimino todos los registros anteriores
+	
+});
+
+document.getElementById('cmbReportChannel').addEventListener('change', async (e)=>{
+	let resp;
+	if(!e.target.value){
+		return;
+	}else if(e.target.value == "telephony") {
+		resp = JSON.parse(await UC_get_async(`SELECT name FROM ccdata.queues group by name`, ''));
+	}else{
+		resp = JSON.parse(await UC_get_async(`SELECT name FROM ccdata.${e.target.value}_members group by name`, ''));
+		}
+	 //cargo los datos recogidos:
+	 $(`#cmbReportCampaigns`).empty();
+	 $(`#cmbReportCampaigns`).trigger("chosen:updated");
+	 $(`#cmbReportCampaigns`).prepend(
+		 `<option disabled selected value>Select a campaign</option>`
+	 );
+	 resp.map((item) => $(`#cmbReportCampaigns`).append(new Option(item.name, `'${item["name"]}'`)));
+	 $(`#cmbReportCampaigns`).trigger("chosen:updated");	 
+})
+
+function cleanReportTemplate(){
+	//defino primero los elementos....d
+}
+
+
+document.getElementById('btnReportNewColumn').addEventListener('click', async ()=>{
+
+
+	const { value: reportValues } = await Swal.fire({
+		title: `Add a new column`,
+		didRender: async () => {
+			//Aqui agrego funciones que necesito tomar en 
+			//cuenta al momento de cargar el modal
+			let cmbTypeOfColumn = document.getElementById('cmbTypeOfColumn');
+			let cmbFrom = document.getElementById('cmbFrom')	
+			let cmbColumn = document.getElementById('cmbColumn')
+			let cmbJSONColumn = document.getElementById('cmbJSONColumn');
+			let cmbJSONField = document.getElementById('cmbJSONField');
+			let inpConstantValue = document.getElementById('inpConstantValue');
+
+			cmbTypeOfColumn.addEventListener('change', async (e)=>{
+				
+				cmbColumn.innerHTML = ""; 
+				
+				inpConstantValue.value = "";
+				inpConstantValue.style.display = "none";
+
+				cmbJSONColumn.style.display = "none";
+				cmbJSONField.style.display = "none";
+				cmbJSONColumn.innerHTML = "";
+				cmbJSONField.innerHTML = "";
+
+				cmbFrom.style.display = "none";	
+			
+
+				if(e.target.value === "column"){
+					cmbFrom.style.display = "";	
+					cmbColumn.style.display = "";
+
+				}else if(e.target.value === "jsonfields"){
+					cmbFrom.style.display = "";	
+					cmbColumn.style.display = "none";
+					cmbJSONColumn.style.display = "";
+					cmbJSONColumn.innerHTML = "<option selected value='information'>Customer Information column</option>"
+					cmbJSONField.style.display = "";
+					
+					let resp = JSON.parse(await UC_get_async(`SELECT fieldId, name FROM ccrepo.CRMLite_structure`,''));
+					let opts = '';
+					if(resp.length){
+						resp.map(element=>{
+							if(element.fieldId != "phone" && element.fieldId != "name" && element.fieldId != "email"){ //estos campos no son 
+								opts+=`<option value="${element.fieldId}">${element.name}</option>`
+							}
+						});	
+					}
+					cmbJSONField.innerHTML = opts;
+
+					inpConstantValue.value = ""; //limpio constante
+				}else if(e.target.value === "constant"){
+					cmbFrom.style.display = "none";
+					cmbFrom.value = ""; //selecciono valor vacio puesto que no sale de ningun lado	
+					cmbColumn.style.display = "none"; 
+					cmbColumn.innerHTML = ""; //limpiamos cmb
+					cmbJSONColumn.style.display = "none"; 
+					cmbJSONField.style.display = "none";
+					inpConstantValue.style.display = "";
+				}
+
+			});
+			
+			cmbFrom.addEventListener('change', async (e)=>{
+				
+				if(e.target.value === "CRMLite_customersV2" && cmbTypeOfColumn.value === "column"){
+					cmbColumn.innerHTML = `
+					<option value="" selected disabled>Select a field</option>
+					<option value="id">ID</option>
+					<option value="name">Name</option>
+					<option value="phone">Phone</option>
+					<option value="email">E-mail</option>
+					<option value="agent">Agent</option>
+					<option value="created">Creation date</option>
+					<option value="updated">Update date</option>
+					<option value="promise">Due</option>
+					<option value="schedule_promise">Due date</option>
+					`
+				}else if(e.target.value === "CRMLite_customersV2" && cmbTypeOfColumn.value === "jsonfields"){
+					let resp = JSON.parse(await UC_get_async(`SELECT fieldId, name FROM ccrepo.CRMLite_structure`,''));
+					let opts = '<option selected disabled value="">Select a field</option>';
+					resp.map(element=>{
+						if(element.fieldId != "phone" && element.fieldId != "name" && element.fieldId != "email"){ //estos campos no son 
+							opts+=`<option value="${element.fieldId}">${element.name}</option>`
+						}
+					});
+					cmbJSONField.innerHTML = opts;
+					inpConstantValue.value = ""; //limpio constante
+					cmbColumn.innerHTML = ""; //limpio columnas
+					cmbColumn.value = ""; //deselecciono columnas
+				}else if(e.target.value === "CRMLite_management" && cmbTypeOfColumn.value === "column"){
+					cmbJSONField.innerHTML = "";
+					cmbJSONField.value = "";
+					inpConstantValue.value = ""; //limpio constante
+					cmbColumn.innerHTML = ""; //limpio columnas
+					cmbColumn.value = ""; //deselecciono columnas
+					cmbColumn.innerHTML = `
+					<option selected value="" disabled>Select a field</option>
+					<option value="id">Row ID</option>
+					<option value="id_customer">Customer ID</option>
+					<option value="date">Date</date>
+					<option value="agent">Agent</option>
+					<option value="lvl1">Level 1</option>
+					<option value="lvl2">Level 2</option>
+					<option value="lvl3">Level 3</option>
+					<option value="note">Notes</option>
+					<option value="queuename">Campaign name</option>
+					<option value="channel">Channel (Telephony, SMS ...)</option>
+					<option value="guid">GUID</option>
+					<option value="callid">CallID</option>
+					`
+				}else{
+					cmbJSONField.innerHTML = "";
+					cmbJSONField.value = "";
+					inpConstantValue.value = ""; //limpio constante
+					cmbColumn.innerHTML = ""; //limpio columnas
+					cmbColumn.value = ""; //deselecciono columnas
+					cmbFrom.value = "";
+				}
+			})
+
+
+		},
+		html: columnHTMLstructure,
+		showCloseButton: true,
+		showCancelButton: true,
+		focusConfirm: false,
+		inputValidator: (value) => {
+			if (!value) {
+				return 'You most to field all the required fields!'
+			}
+		},
+		confirmButtonText: "Save now",
+		preConfirm: async () => {
+		 //Aqui agrego funciones para que pueda capturar los datos.
+
+
+		 
+	
+		 	let obj = {};
+		 	obj.id = columnStructure.length ? columnStructure.sort(function(a, b){return b.id - a.id})[0].id + 1 : 1;
+			obj.alias = document.getElementById('inpAlias').value;
+			obj.isJSON = document.getElementById('cmbTypeOfColumn').value == "jsonfields" ? "true" : "false";
+			obj.isConst = document.getElementById('cmbTypeOfColumn').value == "constant" ? "true" : "false";
+			if (obj.isConst == "false") {
+				obj.from = document.getElementById('cmbFrom').value ? document.getElementById('cmbFrom').value : "CRMLite_customersV2";
+			}else{
+				obj.from = "";
+			}
+			obj.column = obj.isJSON == "true" ? document.getElementById('cmbJSONField').value : document.getElementById('cmbColumn').value;
+			obj.constValue = document.getElementById('inpConstantValue').value;
+			obj.JSONColumn = obj.isJSON == "true" ? "information" : "";
+			obj.isSQLstatement = "false" // hasta que no se pruebe del todo, lo dejaremos false.
+			obj.isDateTime = document.getElementById('chkIsDate').checked ? "true" : "false";
+
+			if(obj.alias) return obj 
+			else return null;
+
+		},
+	  });
+	
+	if(!reportValues){
+		notification("Some fields aren't completed properly", "", "fa fa-warning", "warning");
+	}else{
+		columnStructure.push(reportValues);
+	
+		let fieldHTMLTemp = `
+		<li class="li_drag_sort_fields" data-columnid="${reportValues.id}">
+			<i data-columnid="${reportValues.id}" class="closebadge fa fa-window-close" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">
+			</i>ID:${reportValues.id} - ${reportValues.alias}
+		</li>`;
+	
+		let sorteableColumns  = document.getElementById('sorteableColumns');
+		sorteableColumns.insertAdjacentHTML('beforeend', fieldHTMLTemp);
+	}
+
+
+});
+
+document.getElementById('btnSaveReport').addEventListener('click', async(e)=>{
+	e.target.style.disabled = true;
+	console.info('Column structure below:')
+	console.info(columnStructure);
+	let newStructure = [];
+	// metodo de ordenamiento del obj estructura:
+	let arrElementsLi = document.querySelectorAll('#sorteableColumns>li>[data-columnid]');
+	if(arrElementsLi.length){
+		for (let i = 0; i < arrElementsLi.length; i ++){
+			let id = arrElementsLi[i].dataset.columnid;
+			let objTemp = columnStructure.filter(item=> item.id == id);
+			if (objTemp.length){
+				newStructure.push(objTemp[0]);
+			} 
+		}
+	}else{
+		notification("You don't have any field yet", "Add a new column for your report to save it", "fa fa-warning","warning");
+		e.target.style.disabled = false;
+		return;
+	}
+	
+	console.info('New column structure below:')
+	console.log(newStructure);
+	
+
+	let selectedCampaigns = [];
+	let cmbReportCampaignsChildren = document.getElementById('cmbReportCampaigns').children
+	for(let i = 0; i < cmbReportCampaignsChildren.length; i ++){
+		cmbReportCampaignsChildren[i].value && selectedCampaigns.push(cmbReportCampaignsChildren[i].value);
+	}
+
+	if(selectedCampaigns.length == 0){
+		notification("You don't select any campaign yet", "", "fa fa-warning","warning");
+		return;
+	}
+
+	let emails = document.getElementById('txtDestinationEmail').value
+	emails = emails ? emails.replace(/ /g, "") : emails;
+	emails = emails.split(',');
+
+	if(emails.length == 0){
+		notification("You don't have any email yet", "Add a new destination for your report to save it", "fa fa-warning","warning");
+		e.target.style.disabled = false;
+		return;
+	}
+
+	let cmbReportChannel = document.getElementById('cmbReportChannel').value;
+	if (!cmbReportChannel){
+		notification("You don't have any channel selected yet", "", "fa fa-warning","warning");
+		e.target.style.disabled = false;
+		return;
+	}
+
+	let untilDays = document.getElementById('txtUntilDays').value;
+	untilDays = !untilDays ? 1 : untilDays;
+
+
+	let objSave = {};
+	let title = document.getElementById('lblReportName').innerText;
+	objSave.title = title;
+	objSave.columns  = JSON.stringify(newStructure);
+	objSave.campaigns = JSON.stringify(selectedCampaigns);
+	objSave.channel = cmbReportChannel;
+	objSave.destination = JSON.stringify(emails);
+	objSave.days = untilDays;
+
+	let resp = JSON.parse(await UC_get_async(`SELECT id FROM ccrepo.CRMLite_reports WHERE title = "${title}"`, ""));
+	if(resp.length == 0){
+		// es un reporte nuevo;
+		console.log('Reporte nuevo a generarse.')
+		objSave.id = null;
+		let respSave = await UC_Save_async(objSave, 'CRMLite_reports', 'Repo');
+		if(respSave == "OK"){
+			
+			const { value: reportSchedule } = await Swal.fire({
+				didRender:()=>{
+					let cmbHour = document.getElementById('cmbHour')
+					for(let i = 0; i <= 23; i ++){
+						cmbHour.insertAdjacentHTML('beforeend', `<option value="${i}">${i}</option>`)
+					} 
+
+					let cmbMinutes = document.getElementById('cmbMinutes')
+					for(let i = 0; i <= 59; i ++){
+						cmbMinutes.insertAdjacentHTML('beforeend', `<option value="${i}">${i}</option>`)
+					} 
+				},
+				title: `Add a new column`,
+				html: `
+				<label for="cmbDay" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
+					<span class="swal2-label">Day of the week</span>
+				</label>
+				<select id="cmbDay" class="swal2-input" size="8" style="width:220px;">
+					<option selected value="*">ALL</option>
+					<option value="0">Sunday</option>
+					<option value="1">Monday</option>
+					<option value="2">Tuesday</option>
+					<option value="3">Wednesday</option>
+					<option value="4">Thursday</option>
+					<option value="5">Friday</option>
+					<option value="6">Saturday</option>
+				</select>
+
+				<label for="cmbHour" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
+					<span class="swal2-label">Hour</span>
+				</label>
+				<select id="cmbHour" class="swal2-input" style="width:220px;">
+				<option value="*" selected>ALL</option>
+				</select>
+
+				<label for="cmbMinutes" class="swal2-checkbox" style="margin: 0; margin-top: 20px;">
+					<span class="swal2-label">Minutes</span>
+				</label>
+				<select id="cmbMinutes" class="swal2-input" style="width:220px;">
+				<option value="*" selected>ALL</option>
+				</select>
+				`,
+				showCloseButton: true,
+				showCancelButton: true,
+				focusConfirm: false,
+				confirmButtonText: "Schedule it",
+				preConfirm: async () => {
+				//Aqui agrego funciones para que pueda capturar los datos.
+					return {	
+						day: document.getElementById('cmbDay').value,
+						minutes: document.getElementById('cmbMinutes').value,
+						hour: document.getElementById('cmbHour').value
+					}
+				},
+			});
+			
+			await scheduleReport(reportSchedule.hour, reportSchedule.minutes, reportSchedule.day, objSave.title);
+			notification('The report has been saved', '', 'fa fa-success', 'success');
+			await initReportAdvancedSection(); // punto de inicio nuevamente.
+		}else{
+			notification('We have a problem in the data or database', 'Please, try later', 'fa fa-warning', 'warning');
+		}
+		e.target.style.disabled = false;
+	}else{
+		resp = resp[0];
+
+		console.log('Reporte ya existente.')
+		// primer posicion del array tomada como default
+		// es un reporte existente, actualizamos.
+		objSave.id = resp.id;
+		let respUpdate = await UC_update_async(objSave, 'CRMLite_reports', 'id', 'Repo');
+		if(respUpdate == "OK"){
+			notification('The report has been updated', '', 'fa fa-success', 'success');
+			await initReportAdvancedSection(); // punto de inicio nuevamente.
+		}else{
+			notification('We have a problem in the data or database', 'Please, try later', 'fa fa-warning', 'warning');
+		}
+		e.target.style.disabled = false;
+	}
+
+})
+
+async function scheduleReport(hour = "23", minutes = "59", dow = "*", title=""){
+	$.post(
+		RESTurl + "schedule/addsched",
+		{
+			sched: JSON.stringify({"jobname": title,"alert":"notificate user","send":parent.user,"cron":`${minutes} ${hour} * * ${dow}`,"classname":"ExecScript","status":1,"jparameters":"Script","pvalues":`sudo python3 /etc/IntegraServer/scripts/CRMLite-reports-manager/main.py "${title}"`,"tipo":"task"})
+		},
+		function (data) {
+			
+			parent.notificate("NOTIFSUCCESS", null, "success");
+			parent.loaderSetVisible(false);
+			console.log(data)
+		}
+	).fail(function() {
+		parent.loaderSetVisible(false);
+		parent.notificate("NOTIFDANGER", null, "error");
+	});
+}
+async function loadReportTemplate(data){
+
+	document.getElementById('report_editor_section').style.display = "";
+	document.getElementById('report_editor_select_section').style.display = "none";
+	document.getElementById('lblReportName').innerText = data.title;
+	document.getElementById('cmbReportChannel').value = data.channel;
+
+	columnStructure = JSON.parse(data.columns);
+	
+	let resp;
+	if(data.channel == "telephony") {
+		resp = JSON.parse(await UC_get_async(`SELECT name FROM ccdata.queues group by name`, ''));
+	}else{
+		resp = JSON.parse(await UC_get_async(`SELECT name FROM ccdata.${data.channel}_members group by name`, ''));
+		}
+	 //cargo los datos recogidos:
+	 $(`#cmbReportCampaigns`).empty();
+	 $(`#cmbReportCampaigns`).trigger("chosen:updated");
+	 $(`#cmbReportCampaigns`).prepend(
+		 `<option disabled selected value>Select a campaign</option>`
+	 );
+	 
+	 resp.map((item) => $(`#cmbReportCampaigns`).append(new Option(item.name, `'${item["name"]}'`)));
+	 $(`#cmbReportCampaigns`).trigger("chosen:updated");
+	
+	let opts = document.querySelectorAll('#cmbReportCampaigns > option');
+	data.campaigns = JSON.parse(data.campaigns);
+	for(let item of opts){
+		if(data.campaigns.some(arr => arr === item.value)){
+			item.selected = true;
+		}
+	}
+
+
+	document.getElementById('txtUntilDays').value = data.days;
+	document.getElementById('txtDestinationEmail').value = JSON.parse(data.destination).join(', '); // primer posicion hardcodeada por ahora
+	let sorteableColumns  = document.getElementById('sorteableColumns');
+	sorteableColumns.innerHTML="";
+	columnStructure.map(item=>{
+		sorteableColumns.insertAdjacentHTML('beforeend', `
+		<li class="li_drag_sort_fields" data-columnid="${item.id}" >
+			<i data-columnid="${item.id}" class="closebadge fa fa-window-close" onclick="this.parentNode.parentNode.removeChild(this.parentNode)" ></i>
+			ID:${item.id} - ${item.alias}
+		</li>
+		`)
+	})
+}
+// <---------- Report Section ---------
+
 /* INIT FUNCTIONS */
 
 $(async () => {
 	let initialInfo = await loadInformation();
 	if (initialInfo.error) return;
 	await loadTable();
+	await initReportAdvancedSection()
 })
+

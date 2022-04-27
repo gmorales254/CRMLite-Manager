@@ -26,6 +26,7 @@ printf '########################\n ## Archivo descomprimido, carpeta: /tmp/CRMLi
 # Mover todo a los lugares correspondientes
 cp -r /tmp/CRMLite-Manager/CRMLiteManager /etc/IntegraServer/web/forms
 cp -r /tmp/CRMLiteBUILD/CRMLite /etc/IntegraServer/web/forms
+cp -r /tmp/CRMLite-Manager/CRMLite-reports-manager /etc/IntegraServer/scripts
 mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/DB/install.sql'
 # Reportes
 cp -r /tmp/CRMLite-Manager/REPORTS/* /etc/IntegraServer/reports

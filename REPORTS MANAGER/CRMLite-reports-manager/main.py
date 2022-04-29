@@ -11,7 +11,6 @@ import sys
 reportname = ""
 if sys.argv[0]:
     reportname = sys.argv[1]
-    print("Nombre del reporte obtenido del sistema: " + sys.argv[1])
 else:
     reportname = c._default_report
 
@@ -48,14 +47,16 @@ report_result = integra.form_get(mysqlquerystr, "Repo")
 
 x = datetime.datetime.today()
 reportnamecsv = '{}-{}.csv'.format(reportname, x.strftime("%Y%m%dT%H%M%S"))
-print(report_result)
 if len(report_result) > 0:
+    print('tiene un report correcto')
     response_fcsv = fcsv.create_file(report_result, "/tmp/{}".format(reportnamecsv))
     if(response_fcsv == 1):
-        print("Archivo creado con éxito")
         # Si el archivo está, pasamos a enviar a sus destinos correspondientes
         m.sendEmail(json.loads(reportinfo["destination"]), "Report {} has been generated".format(reportname), "Hey there, have you seen your report? Is here for you in the attachments!", "/tmp/{}".format(reportnamecsv), reportnamecsv)
+        print('Archivo creado y enviado')
     else:
-        print("Hubo un problema, intentelo más tarde")
+        print("hubo un problema")
+else:
+    print('No hubo resultados para esta query, no genero reporte.')
 
 

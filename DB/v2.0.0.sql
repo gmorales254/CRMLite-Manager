@@ -2,7 +2,7 @@
 -- Dumping structure for table ccrepo.CRMLite_customersV2_history
 
 -- Dumping structure for table ccrepo.CRMLite_customersV2_history
-CREATE TABLE IF NOT EXISTS `CRMLite_customersV2_history` (
+CREATE TABLE IF NOT EXISTS ccrepo.`CRMLite_customersV2_history` (
   `id_history` bigint(20) NOT NULL AUTO_INCREMENT,
   `id` bigint(20) NOT NULL,
   `name` varchar(100) DEFAULT '',
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `CRMLite_customersV2_history` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table ccrepo.CRMLite_reports
-CREATE TABLE IF NOT EXISTS `CRMLite_reports` (
+CREATE TABLE IF NOT EXISTS ccrepo.`CRMLite_reports` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(50) CHARACTER SET utf8 NOT NULL,
   `columns` json NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `CRMLite_reports` (
 -- Dumping structure for trigger ccrepo.CRMLite_customersV2_after_insert
 
 DELIMITER //
-CREATE TRIGGER `CRMLite_customersV2_after_insert` AFTER INSERT ON `CRMLite_customersV2` FOR EACH ROW BEGIN
+CREATE TRIGGER ccrepo.`CRMLite_customersV2_after_insert` AFTER INSERT ON `CRMLite_customersV2` FOR EACH ROW BEGIN
 -- TRIGGER PARA HISTORICO DE CLIENTES NUEVOS.
 INSERT INTO CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `information`, `files`, `active`, `agent`, `action_history`, `promise`, `schedule_promise`)
 VALUES (NEW.id, NEW.name, NEW.phone, NEW.email, NEW.information, NEW.files, NEW.active, NEW.agent, 'CREATED', NEW.promise, NEW.schedule_promise);
@@ -59,10 +59,10 @@ DELIMITER ;
 -- Dumping structure for trigger ccrepo.CRMLite_customersV2_history_after_delete
 
 DELIMITER //
-CREATE TRIGGER `CRMLite_customersV2_history_after_delete` AFTER DELETE ON `CRMLite_customersV2` FOR EACH ROW BEGIN
+CREATE TRIGGER ccrepo.`CRMLite_customersV2_history_after_delete` AFTER DELETE ON ccrepo.`CRMLite_customersV2` FOR EACH ROW BEGIN
 -- TRIGGER PARA HISTORICO DE CLIENTES NUEVOS.
 
-INSERT INTO CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `information`, `files`, `active`, `agent`, `action_history`, `promise`, `schedule_promise`)
+INSERT INTO ccrepo.CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `information`, `files`, `active`, `agent`, `action_history`, `promise`, `schedule_promise`)
 VALUES (OLD.id, OLD.name, OLD.phone, OLD.email, OLD.information, OLD.files, OLD.active, OLD.agent, 'DELETED', OLD.promise, OLD.schedule_promise);
  
 END//
@@ -71,8 +71,8 @@ DELIMITER ;
 
 -- Dumping structure for trigger ccrepo.CRMLite_customersV2_history_update_customer
 DELIMITER //
-CREATE TRIGGER `CRMLite_customersV2_history_update_customer` AFTER UPDATE ON `CRMLite_customersV2` FOR EACH ROW 
-INSERT INTO CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `information`, `files`, `active`, `agent`, `action_history`, `promise`, `schedule_promise`)
+CREATE TRIGGER ccrepo.`CRMLite_customersV2_history_update_customer` AFTER UPDATE ON ccrepo.`CRMLite_customersV2` FOR EACH ROW 
+INSERT INTO ccrepo.CRMLite_customersV2_history (`id`, `name`, `phone`, `email`, `information`, `files`, `active`, `agent`, `action_history`, `promise`, `schedule_promise`)
 VALUES (NEW.id, NEW.name, NEW.phone, NEW.email, NEW.information, NEW.files, NEW.active, NEW.agent, 'UPDATED', NEW.promise, NEW.schedule_promise)//
 DELIMITER ;
 

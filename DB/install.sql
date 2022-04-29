@@ -281,11 +281,11 @@ CREATE PROCEDURE ccdata.`blacklist_schedule_procedure`(
 BEGIN
 
 INSERT IGNORE INTO ccdata.black_list (phone, campaign, username) VALUES (phone, campaign, username);
-DELETE FROM ccdata.calls_spool WHERE destination LIKE CONCAT('%',phone,'%') OR (alternatives <> '' AND (alternatives like CONCAT('%',phone,'%') OR alternatives like CONCAT('%',phone,'%')));
-DELETE FROM ccdata.calls_scheduler WHERE destination LIKE CONCAT('%',phone,'%') OR (alternatives <> '' AND (alternatives like CONCAT('%',phone,'%') OR alternatives like CONCAT('%',phone,'%')));
+DELETE FROM ccdata.calls_spool WHERE destination LIKE CONCAT('%',phone COLLATE utf8mb4_0900_ai_ci,'%') OR (alternatives <> '' AND (alternatives like CONCAT('%',phone COLLATE utf8mb4_0900_ai_ci,'%') OR alternatives like CONCAT('%',phone COLLATE utf8mb4_0900_ai_ci,'%')));
+DELETE FROM ccdata.calls_scheduler WHERE destination LIKE CONCAT('%',phone COLLATE utf8mb4_0900_ai_ci,'%') OR (alternatives <> '' AND (alternatives like CONCAT('%',phone COLLATE utf8mb4_0900_ai_ci,'%') OR alternatives like CONCAT('%',phone COLLATE utf8mb4_0900_ai_ci,'%')));
 
-IF schedule != "" AND schedule IS NOT NULL THEN
-INSERT IGNORE INTO ccdata.black_list_schedule (phone, removedate) VALUES (phone, schedule) ON DUPLICATE KEY UPDATE removedate = VALUES(removedate);
+IF `schedule` COLLATE utf8mb4_0900_ai_ci != "" AND `schedule` COLLATE utf8mb4_0900_ai_ci IS NOT NULL THEN
+INSERT IGNORE INTO ccdata.black_list_schedule (phone, removedate) VALUES (phone, `schedule` COLLATE utf8mb4_0900_ai_ci) ON DUPLICATE KEY UPDATE removedate = VALUES(removedate);
 END IF;
 
 END//

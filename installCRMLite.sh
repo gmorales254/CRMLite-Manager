@@ -1,7 +1,3 @@
-echo "Enter Database USER: "
-read DBUSER
-echo "Enter Database PASS: "
-read -p DBPASS
 #Directorio de instalacion
 cd /tmp/
 #Descarga del repo de CRMLiteManager
@@ -27,7 +23,7 @@ printf '########################\n ## Archivo descomprimido, carpeta: /tmp/CRMLi
 cp -r /tmp/CRMLite-Manager/CRMLiteManager /etc/IntegraServer/web/forms
 cp -r /tmp/CRMLiteBUILD/CRMLite /etc/IntegraServer/web/forms
 cp -r /tmp/CRMLite-Manager/CRMLite-reports-manager /etc/IntegraServer/scripts
-mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/DB/install.sql'
+mysql -u ccuser -p"ccdatapassword2008" < '/tmp/CRMLite-Manager/DB/install.sql'
 # Reportes
 cp -r /tmp/CRMLite-Manager/REPORTS/* /etc/IntegraServer/reports
-mysql -u $DBUSER -p$DBPASS -D "ccrepo" -f < '/tmp/CRMLite-Manager/REPORTS/install.sql'
+mysql -u ccuser -p"ccdatapassword2008" < '/tmp/CRMLite-Manager/REPORTS/install.sql'
